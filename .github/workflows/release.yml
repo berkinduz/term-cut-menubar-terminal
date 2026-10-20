@@ -1,36 +1,71 @@
 name: Release
 
 on:
-  push:
-    tags: ['v*']
+  workflow_run:
+    workflows: [macOS]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_sha == github.sha
     runs-on: macos-26
     timeout-minutes: 25
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Read application version
+        id: version
+        run: |
+          version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)
+          printf 'tag=v%s\n' "$version" >> "$GITHUB_OUTPUT"
+      - name: Check for an existing release
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            printf 'required=false\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'required=true\n' >> "$GITHUB_OUTPUT"
+          fi
       - name: Test
+        if: steps.publish.outputs.required == 'true'
         run: swift test
       - name: Build universal application
+        if: steps.publish.outputs.required == 'true'
         run: ./scripts/build-app.sh --universal
       - name: Package
+        if: steps.publish.outputs.required == 'true'
         run: ./scripts/package-dmg.sh
       - name: Checksums
+        if: steps.publish.outputs.required == 'true'
         working-directory: build
         run: shasum -a 256 term-cut.dmg term-cut.zip > SHA256SUMS
       - name: Publish release
+        if: steps.publish.outputs.required == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_COMMIT: ${{ github.event.workflow_run.head_sha }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
+          gh release create "$RELEASE_TAG" \
             build/term-cut.dmg build/term-cut.zip build/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" \
-            --verify-tag \
-            --title "term-cut $GITHUB_REF_NAME" \
-            --notes-file "docs/releases/$GITHUB_REF_NAME.md"
+            --target "$RELEASE_COMMIT" \
+            --title "term-cut $RELEASE_TAG" \
+            --notes-file "docs/releases/$RELEASE_TAG.md"

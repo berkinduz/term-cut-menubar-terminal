@@ -70,4 +70,6 @@ swift test
 
 Small, focused improvements are welcome. [Open an issue](https://github.com/berkinduz/term-cut-menubar-terminal/issues) for bugs or ideas.
 
+Release maintainers: see [Releasing](docs/RELEASING.md).
+
 [MIT License](LICENSE) · Made by [berkinduz](https://github.com/berkinduz) · [Contact](mailto:mberkinduz@gmail.com) · [Buy me a coffee](https://buymeacoffee.com/berkinduz)
