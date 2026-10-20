@@ -1,0 +1,31 @@
+name: macOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Toolchain
+        run: xcodebuild -version && swift --version
+      - name: Test
+        run: swift test
+      - name: Build universal application
+        run: ./scripts/build-app.sh --universal
+      - name: Package
+        run: ./scripts/package-dmg.sh
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: term-cut-macos
+          path: |
+            build/term-cut.zip
+            build/term-cut.dmg
