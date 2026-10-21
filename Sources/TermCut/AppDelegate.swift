@@ -18,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         workspace = TerminalWorkspace(settings: settings)
         terminalPanel = TerminalPanelController(workspace: workspace, settings: settings)
         workspace.onHide = { [weak self] in self?.terminalPanel.hide() }
+        workspace.onModeChange = { [weak self] in self?.terminalPanel.show($0) }
         workspace.onSettings = { [weak self] in self?.showSettings() }
         workspace.onAbout = { [weak self] in self?.showAbout() }
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)

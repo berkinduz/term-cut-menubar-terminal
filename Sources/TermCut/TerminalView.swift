@@ -51,6 +51,12 @@ struct TerminalWindowView: View {
                 iconButton(settings.value.keepVisible ? "pin.fill" : "pin", label: "Keep visible when switching apps",
                            active: settings.value.keepVisible) { settings.value.keepVisible.toggle(); workspace.focusActive() }
                 Menu {
+                    Picker("Window Mode", selection: Binding(get: { workspace.mode }, set: { workspace.onModeChange?($0) })) {
+                        Text("Compact").tag(PanelMode.compact)
+                        Text("Drop-down").tag(PanelMode.dropDown)
+                    }
+                    .pickerStyle(.menu)
+                    Divider()
                     Button("Settings…") { workspace.onSettings?() }
                     Button("About term-cut") { workspace.onAbout?() }
                     Divider()

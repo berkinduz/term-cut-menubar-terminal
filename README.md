@@ -13,15 +13,30 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 
 </div>
 
+![term-cut drop-down terminal opened from the macOS menu bar above a developer code editor](docs/images/dropdown-preview.png)
+
+*Open from the menu bar or a global shortcut. Illustrative product preview.*
+
 ## Features
 
-- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a floating panel or a drop-down terminal from the View menu.
+- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a floating panel or a drop-down terminal from **⋯ → Window Mode**.
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
 - **Quiet by design.** Native controls, considered colors, gentle transitions, and Liquid Glass on macOS 26+.
 - **Make it yours.** Themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
+
+<details>
+<summary>Preview tabs, split panes, and settings</summary>
+
+![term-cut terminal product preview with tabs and side-by-side split panes](docs/images/terminal-preview.png)
+
+![term-cut settings product preview with theme, font, spacing, and window preferences](docs/images/settings-preview.png)
+
+*Illustrative product previews; exact appearance varies with macOS and your settings.*
+
+</details>
 
 ## Install on macOS
 
@@ -40,7 +55,7 @@ cd term-cut-menubar-terminal
 open build/term-cut.app
 ```
 
-Drag `build/term-cut.app` into Applications. Right-click its menu bar icon for Settings and About. Switch window layouts from the **View** menu or use your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
+Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Window Mode**. You can also switch modes from the **View** menu or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
 
 ## Shortcuts
 

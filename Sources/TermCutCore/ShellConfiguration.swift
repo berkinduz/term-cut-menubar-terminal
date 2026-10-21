@@ -14,7 +14,7 @@ public struct ShellConfiguration {
         environment["TERM"] = "xterm-256color"
         environment["COLORTERM"] = "truecolor"
         environment["TERM_PROGRAM"] = "term-cut"
-        environment["TERM_PROGRAM_VERSION"] = "0.1.2"
+        environment["TERM_PROGRAM_VERSION"] = "0.1.3"
         environment["HOME"] = home
         environment["SHELL"] = executable
         if URL(fileURLWithPath: executable).lastPathComponent == "zsh", arguments == ["-l"], let integrationDirectory {

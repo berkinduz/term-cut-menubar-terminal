@@ -134,6 +134,7 @@ final class TerminalWorkspace: ObservableObject {
     @Published var mode: PanelMode = .compact
     let settings: SettingsStore
     var onHide: (() -> Void)?
+    var onModeChange: ((PanelMode) -> Void)?
     var onSettings: (() -> Void)?
     var onAbout: (() -> Void)?
     var preventsAutoHide = false
