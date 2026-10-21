@@ -60,11 +60,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         else if CommandLine.arguments.contains("--about") { showAbout() }
         else if CommandLine.arguments.contains("--dropdown") { terminalPanel.show(.dropDown) }
         else if CommandLine.arguments.contains("--compact") { terminalPanel.show(.compact) }
-        else if settings.value.showOnLaunch { terminalPanel.show(settings.value.menuBarMode) }
+        else if settings.value.showOnLaunch { terminalPanel.show(workspace.mode) }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        terminalPanel.show(settings.value.menuBarMode)
+        terminalPanel.show(workspace.mode)
         return false
     }
     func applicationWillTerminate(_ notification: Notification) { workspace?.stopAll() }
@@ -91,7 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             statusItem.menu = menu
             statusItem.button?.performClick(nil)
             statusItem.menu = nil
-        } else { terminalPanel.toggle(settings.value.menuBarMode) }
+        } else { terminalPanel.toggle(workspace.mode) }
     }
 
     @objc private func showCompact() { terminalPanel.show(.compact) }
@@ -125,7 +125,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         terminalPanel?.hide()
         if settingsWindow == nil {
             settingsWindow = UtilityWindowController(title: "Settings — term-cut", size: NSSize(width: 620, height: 680),
-                                                     content: SettingsView(settings: settings, hotKeys: hotKeys), autosave: "term-cut-settings")
+                                                     content: SettingsView(settings: settings, hotKeys: hotKeys, workspace: workspace), autosave: "term-cut-settings")
         }
         settingsWindow?.present()
     }

@@ -116,6 +116,11 @@ final class SettingsStore: ObservableObject {
     var onChange: (() -> Void)?
     private let defaults: UserDefaults
 
+    var lastWindowMode: PanelMode {
+        get { defaults.string(forKey: "lastWindowMode").flatMap(PanelMode.init(rawValue:)) ?? value.menuBarMode }
+        set { defaults.set(newValue.rawValue, forKey: "lastWindowMode") }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         if let data = defaults.data(forKey: "preferences"), let saved = try? JSONDecoder().decode(AppPreferences.self, from: data) {

@@ -25,6 +25,7 @@ final class LoginItemStore: ObservableObject {
 struct SettingsView: View {
     @ObservedObject var settings: SettingsStore
     @ObservedObject var hotKeys: HotKeyManager
+    @ObservedObject var workspace: TerminalWorkspace
     @StateObject private var login = LoginItemStore()
     @State private var search = ""
 
@@ -45,9 +46,9 @@ struct SettingsView: View {
                 .accessibilityLabel("Search settings")
 
             Form {
-                if matches("general startup login pin menu bar launch hide visibility compact drop-down") {
+                if matches("general startup mode login pin menu bar launch hide visibility compact drop-down") {
                     Section("General") {
-                        Picker("Menu bar click opens", selection: $settings.value.menuBarMode) {
+                        Picker("Window mode", selection: $workspace.mode) {
                             Text("Compact panel").tag(PanelMode.compact)
                             Text("Drop-down terminal").tag(PanelMode.dropDown)
                         }

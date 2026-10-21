@@ -131,7 +131,9 @@ final class TerminalWorkspace: ObservableObject {
     @Published private(set) var activeTabID: UUID?
     @Published private(set) var activeID: UUID?
     @Published private(set) var zoomedPaneID: UUID?
-    @Published var mode: PanelMode = .compact
+    @Published var mode: PanelMode {
+        didSet { settings.lastWindowMode = mode }
+    }
     let settings: SettingsStore
     var onHide: (() -> Void)?
     var onModeChange: ((PanelMode) -> Void)?
@@ -140,7 +142,10 @@ final class TerminalWorkspace: ObservableObject {
     var preventsAutoHide = false
     private var splitFractions: [String: Double] = [:]
 
-    init(settings: SettingsStore) { self.settings = settings }
+    init(settings: SettingsStore) {
+        self.settings = settings
+        mode = settings.lastWindowMode
+    }
     var active: TerminalSession? { sessions.first { $0.id == activeID } }
     var activeTab: TerminalTab? { tabs.first { $0.id == activeTabID } }
     var activity: TerminalActivity { TerminalActivity.combined(sessions.map(\.activity)) }
