@@ -1,21 +1,21 @@
 <div align="center">
 
-# term-cut
+# term-cut — macOS Menu Bar Terminal
 
 [![macOS](https://github.com/berkinduz/term-cut-menubar-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/berkinduz/term-cut-menubar-terminal/actions/workflows/ci.yml)
 
 **Your terminal. One shortcut away.**
 
-A native macOS terminal that lives in your menu bar.
-Open a compact panel or a full-width drop-down. Keep your flow.
+A free, open-source terminal for Mac that lives in your menu bar.
+Open your shell with a global hotkey, work across tabs and split panes, and keep your flow.
 
-[Download for Mac](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg) · [Features](#features) · [Build](#build) · [Shortcuts](#shortcuts)
+[Download for Mac](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg) · [Features](#features) · [Build from source](#build-from-source) · [Shortcuts](#shortcuts)
 
 </div>
 
 ## Features
 
-- **Two ways in.** A menu bar panel and a drop-down terminal, with customizable global shortcuts.
+- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a floating panel or a drop-down terminal from the View menu.
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
@@ -23,13 +23,13 @@ Open a compact panel or a full-width drop-down. Keep your flow.
 - **Make it yours.** Themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
 
-## Install
+## Install on macOS
 
 [Download the latest release](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg), open the disk image, and drag **term-cut** into **Applications**. Requires macOS 13 or later; supports Apple silicon and Intel.
 
 Releases are ad-hoc signed without Apple notarization. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Building from source is also supported.
 
-## Build
+## Build from source
 
 Requires **macOS 13+** and **Xcode 26+** with its command-line tools selected.
 
