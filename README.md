@@ -15,7 +15,7 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 
 ![term-cut drop-down terminal opened from the macOS menu bar overlaying a normal Finder window](docs/images/dropdown-preview.png)
 
-*Open from the menu bar or a global shortcut. Illustrative product preview.*
+*Open from the menu bar or a global shortcut.*
 
 ## Features
 
@@ -27,16 +27,13 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 - **Make it yours.** Themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
 
-<details>
-<summary>Preview tabs, split panes, and settings</summary>
+### Tabs and split panes
 
 ![term-cut terminal product preview with tabs and side-by-side split panes](docs/images/terminal-preview.png)
 
+### Settings
+
 ![term-cut settings product preview with theme, font, spacing, and window preferences](docs/images/settings-preview.png)
-
-*Illustrative product previews; exact appearance varies with macOS and your settings.*
-
-</details>
 
 ## Install on macOS
 
@@ -94,4 +91,4 @@ Small, focused improvements are welcome. [Open an issue](https://github.com/berk
 
 Release maintainers: see [Releasing](docs/RELEASING.md).
 
-[MIT License](LICENSE) · Made by [berkinduz](https://github.com/berkinduz) · [Contact](mailto:mberkinduz@gmail.com) · [Buy me a coffee](https://buymeacoffee.com/berkinduz)
+[MIT License](LICENSE) · Made by [berkinduz](https://github.com/berkinduz) · [Contact](mailto:mberkinduz@gmail.com)
