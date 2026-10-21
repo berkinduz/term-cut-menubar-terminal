@@ -10,6 +10,7 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
     private(set) var directory: String
     private(set) var isRunning = false
     private(set) var exitCode: Int32?
+    private(set) var activity: TerminalActivity = .unavailable
     var onUpdate: (() -> Void)?
     private var stopped = false
     private var lastPreferences: AppPreferences?
@@ -25,6 +26,13 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
         super.init()
         terminal.processDelegate = self
         terminal.setAccessibilityLabel("Terminal session")
+        terminal.terminal.registerOscHandler(code: ShellIntegration.statusCode) { [weak self] data in
+            guard let self, self.isRunning, !self.stopped,
+                  let report = String(bytes: data, encoding: .utf8),
+                  let activity = TerminalActivity(shellReport: report), self.activity != activity else { return }
+            self.activity = activity
+            self.onUpdate?()
+        }
         apply(preferences)
         isRunning = true
         terminal.startProcess(executable: configuration.executable, args: configuration.arguments,
@@ -73,6 +81,7 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
             }
         }
         isRunning = false
+        activity = .ended
     }
 
     func sizeChanged(source: LocalProcessTerminalView, newCols: Int, newRows: Int) { onUpdate?() }
@@ -87,7 +96,12 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
     func processTerminated(source: TerminalView, exitCode: Int32?) {
         guard !stopped else { return }
         isRunning = false
-        self.exitCode = exitCode
+        // SwiftTerm's macOS process delegate returns waitpid's packed status.
+        self.exitCode = exitCode.map { status in
+            let signal = status & 0x7f
+            return signal == 0 ? (status >> 8) & 0xff : 128 + signal
+        }
+        activity = self.exitCode.map { $0 == 0 ? .ended : .failed($0) } ?? .ended
         onUpdate?()
     }
 }
@@ -128,6 +142,11 @@ final class TerminalWorkspace: ObservableObject {
     init(settings: SettingsStore) { self.settings = settings }
     var active: TerminalSession? { sessions.first { $0.id == activeID } }
     var activeTab: TerminalTab? { tabs.first { $0.id == activeTabID } }
+    var activity: TerminalActivity { TerminalActivity.combined(sessions.map(\.activity)) }
+
+    func activity(for tab: TerminalTab) -> TerminalActivity {
+        TerminalActivity.combined(tab.root.leaves.compactMap { session($0)?.activity })
+    }
 
     func session(_ id: UUID) -> TerminalSession? { sessions.first { $0.id == id } }
     func splitFraction(for key: String) -> Double { splitFractions[key] ?? 0.5 }
@@ -140,7 +159,8 @@ final class TerminalWorkspace: ObservableObject {
             let shell = getpwuid(getuid()).flatMap { $0.pointee.pw_shell }.map { String(cString: $0) } ?? "/bin/zsh"
             config = ShellConfiguration(shell: shell, home: FileManager.default.homeDirectoryForCurrentUser.path,
                                         inheritedEnvironment: ProcessInfo.processInfo.environment,
-                                        workingDirectory: settings.value.inheritDirectory ? active?.directory : nil)
+                                        workingDirectory: settings.value.inheritDirectory ? active?.directory : nil,
+                                        integrationDirectory: ShellIntegration.zshDirectory)
         }
         let session = TerminalSession(configuration: config, preferences: settings.value)
         session.onUpdate = { [weak self] in self?.objectWillChange.send() }

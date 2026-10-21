@@ -1,0 +1,16 @@
+# Hooks report only command state and exit status, never command text.
+builtin emulate -L zsh -o no_aliases
+
+_term_cut_preexec() {
+    builtin printf '\033]7777;start\007' > /dev/tty
+}
+
+_term_cut_precmd() {
+    builtin local result=$?
+    builtin printf '\033]7777;done;%d\007' "$result" > /dev/tty
+    builtin return 0
+}
+
+builtin typeset -ag preexec_functions precmd_functions
+preexec_functions+=(_term_cut_preexec)
+precmd_functions+=(_term_cut_precmd)

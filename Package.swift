@@ -12,7 +12,8 @@ let package = Package(
         .target(name: "TermCutCore"),
         .executableTarget(
             name: "TermCut",
-            dependencies: ["TermCutCore", .product(name: "SwiftTerm", package: "SwiftTerm")]
+            dependencies: ["TermCutCore", .product(name: "SwiftTerm", package: "SwiftTerm")],
+            resources: [.copy("Resources/ShellIntegration")]
         ),
         .testTarget(name: "TermCutCoreTests", dependencies: ["TermCutCore"]),
         .testTarget(name: "TermCutTests", dependencies: ["TermCut"])

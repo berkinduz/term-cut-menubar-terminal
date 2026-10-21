@@ -29,6 +29,7 @@ else
   install -m 755 "${binary_paths[0]}" "$app_directory/Contents/MacOS/TermCut"
 fi
 cp Resources/Info.plist "$app_directory/Contents/Info.plist"
+ditto Sources/TermCut/Resources/ShellIntegration "$app_directory/Contents/Resources/ShellIntegration"
 for bundle in "$resource_directory/"*.bundle; do
   if [ -d "$bundle" ]; then ditto "$bundle" "$app_directory/Contents/Resources/$(basename "$bundle")"; fi
 done

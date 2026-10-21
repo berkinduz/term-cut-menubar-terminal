@@ -18,6 +18,7 @@ Open a compact panel or a full-width drop-down. Keep your flow.
 - **Two ways in.** A menu bar panel and a drop-down terminal, with customizable global shortcuts.
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
+- **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
 - **Quiet by design.** Native controls, considered colors, gentle transitions, and Liquid Glass on macOS 26+.
 - **Make it yours.** Themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
@@ -58,6 +59,12 @@ Drag `build/term-cut.app` into Applications. Right-click its menu bar icon for S
 | Settings | `⌘,` |
 
 Global shortcuts can be changed in Settings. Escape stays available to your shell and editors. Sessions last until you close them or quit the app; they are not restored after quitting. Working-directory inheritance requires shell OSC 7 support.
+
+## Activity indicators
+
+Automatic command tracking supports your top-level **zsh** login shell. Its normal startup files still load; term-cut does not edit them. Green means ready, yellow means a foreground command is running, and red means the last command returned a nonzero exit status. A new command replaces that status. The menu bar gives failed sessions priority across all tabs and panes, including hidden ones.
+
+Gray means the session ended or activity tracking is unavailable. Other shells, commands inside nested shells or interactive SSH sessions, and background jobs are not individually tracked. Output text alone never determines success or failure. See [shell integration](docs/SHELL_INTEGRATION.md) for details.
 
 ## Contribute
 

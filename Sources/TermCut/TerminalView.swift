@@ -87,6 +87,11 @@ struct TerminalWindowView: View {
                         Button { workspace.selectTab(tab.id) } label: {
                             HStack(spacing: 7) {
                                 Image(systemName: tab.root.leaves.count > 1 ? "rectangle.split.2x1" : "terminal")
+                                    .overlay(alignment: .bottomTrailing) {
+                                        ActivityDot(activity: workspace.activity(for: tab))
+                                            .background(Circle().fill(Color(theme.chrome)).padding(-1))
+                                            .offset(x: 2, y: 2)
+                                    }
                                 Text(tab.customName ?? workspace.session(tab.root.leaves[0])?.title ?? "Terminal")
                                     .lineLimit(1).truncationMode(.middle)
                             }.frame(minWidth: 80, maxWidth: 160, alignment: .leading)
@@ -110,9 +115,9 @@ struct TerminalWindowView: View {
 
     private var footer: some View {
         HStack(spacing: 7) {
-            Circle().fill(workspace.active?.isRunning == true ? Color(theme.accent) : Color(theme.secondary)).frame(width: 5, height: 5)
             if let session = workspace.active {
-                Text(session.isRunning ? "Session active" : "Session ended")
+                ActivityDot(activity: session.activity)
+                Text(session.activity.description)
                 if !session.isRunning {
                     Button("Restart") { workspace.restartActive() }.buttonStyle(.link)
                 }
@@ -187,8 +192,7 @@ private struct TerminalPaneView: View {
             if let session = workspace.session(id) {
                 if showHeader {
                     HStack(spacing: 7) {
-                        Circle().fill(Color(settings.value.theme.accent).opacity(workspace.activeID == id ? 1 : 0.2))
-                            .frame(width: 5, height: 5)
+                        ActivityDot(activity: session.activity).opacity(workspace.activeID == id ? 1 : 0.65)
                         Text(session.title).lineLimit(1).truncationMode(.middle)
                         Spacer(minLength: 0)
                         Button {

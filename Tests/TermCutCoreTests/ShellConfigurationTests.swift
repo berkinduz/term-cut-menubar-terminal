@@ -19,4 +19,15 @@ final class ShellConfigurationTests: XCTestCase {
         let path = config.environment.first { $0.hasPrefix("PATH=") }!
         XCTAssertEqual(path.components(separatedBy: "/opt/homebrew/bin").count, 2)
     }
+
+    func testZshIntegrationPreservesTheOriginalStartupDirectory() {
+        let config = ShellConfiguration(shell: "/bin/zsh", home: "/tmp", inheritedEnvironment: ["ZDOTDIR": "/custom config"],
+                                        integrationDirectory: "/application/integration")
+        XCTAssertTrue(config.environment.contains("ZDOTDIR=/application/integration"))
+        XCTAssertTrue(config.environment.contains("TERM_CUT_ORIGINAL_ZDOTDIR=/custom config"))
+        let normal = ShellConfiguration(shell: "/bin/bash", home: "/tmp", inheritedEnvironment: ["ZDOTDIR": "/custom config"],
+                                        integrationDirectory: "/application/integration")
+        XCTAssertTrue(normal.environment.contains("ZDOTDIR=/custom config"))
+        XCTAssertFalse(normal.environment.contains { $0.hasPrefix("TERM_CUT_ORIGINAL_ZDOTDIR=") })
+    }
 }

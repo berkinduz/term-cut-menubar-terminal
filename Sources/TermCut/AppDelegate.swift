@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import TermCutCore
 
@@ -10,6 +11,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var statusItem: NSStatusItem!
     private var settingsWindow: UtilityWindowController?
     private var aboutWindow: UtilityWindowController?
+    private let activityDot = MenuBarActivityDot()
+    private var activityObserver: AnyCancellable?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         workspace = TerminalWorkspace(settings: settings)
@@ -25,7 +28,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             button.target = self
             button.action = #selector(statusItemClicked)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            activityDot.translatesAutoresizingMaskIntoConstraints = false
+            activityDot.setAccessibilityElement(false)
+            button.addSubview(activityDot)
+            NSLayoutConstraint.activate([
+                activityDot.widthAnchor.constraint(equalToConstant: 6),
+                activityDot.heightAnchor.constraint(equalToConstant: 6),
+                activityDot.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -1),
+                activityDot.bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 2)
+            ])
         }
+        activityObserver = workspace.objectWillChange.sink { [weak self] in
+            DispatchQueue.main.async { [weak self] in self?.updateActivityIndicator() }
+        }
+        updateActivityIndicator()
         terminalPanel.statusAnchor = { [weak self] in
             guard let button = self?.statusItem.button, let window = button.window else { return nil }
             return window.convertToScreen(button.convert(button.bounds, to: nil))
@@ -52,6 +68,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
     func applicationWillTerminate(_ notification: Notification) { workspace?.stopAll() }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    private func updateActivityIndicator() {
+        let activity = workspace.activity
+        activityDot.activity = activity
+        let description = workspace.sessions.isEmpty ? "No sessions" : activity.description
+        statusItem.button?.toolTip = "term-cut — \(description)\nClick to toggle, right-click for options"
+        statusItem.button?.setAccessibilityLabel("term-cut — \(description)")
+    }
 
     @objc private func statusItemClicked() {
         if NSApp.currentEvent?.type == .rightMouseUp {
