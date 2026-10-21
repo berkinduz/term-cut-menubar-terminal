@@ -13,7 +13,7 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 
 </div>
 
-![term-cut drop-down terminal opened from the macOS menu bar above a developer code editor](docs/images/dropdown-preview.png)
+![term-cut drop-down terminal opened from the macOS menu bar overlaying a normal Finder window](docs/images/dropdown-preview.png)
 
 *Open from the menu bar or a global shortcut. Illustrative product preview.*
 
