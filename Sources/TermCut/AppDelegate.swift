@@ -14,7 +14,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func applicationDidFinishLaunching(_ notification: Notification) {
         workspace = TerminalWorkspace(settings: settings)
         terminalPanel = TerminalPanelController(workspace: workspace, settings: settings)
-        workspace.onModeSelected = { [weak self] in self?.terminalPanel.show($0) }
         workspace.onHide = { [weak self] in self?.terminalPanel.hide() }
         workspace.onSettings = { [weak self] in self?.showSettings() }
         workspace.onAbout = { [weak self] in self?.showAbout() }
@@ -146,6 +145,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let find = add("Find…", action: #selector(NSTextView.performFindPanelAction(_:)), key: "f", to: edit, responderChain: true)
         find.tag = Int(NSFindPanelAction.showFindPanel.rawValue)
         let view = NSMenu(title: "View")
+        add("Compact Window", action: #selector(showCompact), to: view)
+        add("Drop-down Window", action: #selector(showDropDown), to: view)
+        view.addItem(.separator())
         add("Larger Text", action: #selector(increaseText), key: "+", to: view)
         add("Smaller Text", action: #selector(decreaseText), key: "-", to: view)
         add("Reset Text Size", action: #selector(resetText), key: "0", to: view)

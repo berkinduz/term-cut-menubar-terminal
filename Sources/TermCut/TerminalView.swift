@@ -38,13 +38,6 @@ struct TerminalWindowView: View {
                 Text("term-cut").font(.system(size: 13, weight: .semibold, design: .rounded))
             }
             Spacer(minLength: 4)
-            HStack(spacing: 2) {
-                modeButton(.compact, symbol: "macwindow", label: "Compact")
-                modeButton(.dropDown, symbol: "rectangle.topthird.inset.filled", label: "Drop-down")
-            }
-            .padding(3)
-            .modifier(ControlMaterial(enabled: settings.value.glassEnabled, theme: theme))
-            Spacer(minLength: 4)
             HStack(spacing: 3) {
                 iconButton("plus", label: "New tab (⌘T)") { workspace.addSession() }
                 Menu {
@@ -69,21 +62,12 @@ struct TerminalWindowView: View {
                 iconButton("chevron.up", label: "Hide terminal") { workspace.onHide?() }
             }
             .foregroundStyle(Color(theme.secondary))
+            .padding(3)
+            .modifier(ControlMaterial(enabled: settings.value.glassEnabled, theme: theme))
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
         .background(WindowDragArea())
         .background(Color(theme.chrome))
-    }
-
-    private func modeButton(_ mode: PanelMode, symbol: String, label: String) -> some View {
-        Button { workspace.onModeSelected?(mode) } label: {
-            Label(label, systemImage: symbol)
-                .font(.system(size: 11, weight: workspace.mode == mode ? .semibold : .regular))
-                .padding(.horizontal, 9).padding(.vertical, 5)
-                .background(workspace.mode == mode ? Color(theme.foreground).opacity(0.1) : .clear, in: Capsule())
-        }
-        .buttonStyle(.plain).help("Show \(label.lowercased()) terminal")
-        .accessibilityLabel("\(label) mode")
     }
 
     private func iconButton(_ symbol: String, label: String, active: Bool = false, action: @escaping () -> Void) -> some View {

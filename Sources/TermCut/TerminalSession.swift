@@ -119,7 +119,6 @@ final class TerminalWorkspace: ObservableObject {
     @Published private(set) var zoomedPaneID: UUID?
     @Published var mode: PanelMode = .compact
     let settings: SettingsStore
-    var onModeSelected: ((PanelMode) -> Void)?
     var onHide: (() -> Void)?
     var onSettings: (() -> Void)?
     var onAbout: (() -> Void)?

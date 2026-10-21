@@ -14,7 +14,7 @@ public struct ShellConfiguration {
         environment["TERM"] = "xterm-256color"
         environment["COLORTERM"] = "truecolor"
         environment["TERM_PROGRAM"] = "term-cut"
-        environment["TERM_PROGRAM_VERSION"] = "0.1.0"
+        environment["TERM_PROGRAM_VERSION"] = "0.1.1"
         environment["HOME"] = home
         environment["SHELL"] = executable
         let inheritedPath = environment["PATH"] ?? "/usr/bin:/bin:/usr/sbin:/sbin"

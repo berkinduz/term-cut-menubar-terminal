@@ -39,7 +39,7 @@ cd term-cut-menubar-terminal
 open build/term-cut.app
 ```
 
-Drag `build/term-cut.app` into Applications. Right-click its menu bar icon for Settings and About. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
+Drag `build/term-cut.app` into Applications. Right-click its menu bar icon for Settings and About. Switch window layouts from the **View** menu or use your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
 
 ## Shortcuts
 
