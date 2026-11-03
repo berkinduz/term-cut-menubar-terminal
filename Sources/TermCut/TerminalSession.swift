@@ -17,6 +17,9 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
     private var lastPreferences: AppPreferences?
     private let shellExecutable: String
 
+    var compactTitle: String { TerminalLabel.directoryName(directory) }
+    var titleHelp: String { "\(directory)\n\(title)" }
+
     var hasRunningCommand: Bool {
         guard isRunning, terminal.process.running else { return false }
         if activity == .running { return true }
@@ -112,7 +115,7 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
 
     func sizeChanged(source: LocalProcessTerminalView, newCols: Int, newRows: Int) { onUpdate?() }
     func setTerminalTitle(source: LocalProcessTerminalView, title: String) {
-        self.title = String(title.prefix(100))
+        self.title = String(title.prefix(4096))
         onUpdate?()
     }
     func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {

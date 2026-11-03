@@ -95,7 +95,8 @@ struct TerminalWindowView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(workspace.tabs) { tab in
-                        let title = tab.customName ?? workspace.session(tab.root.leaves[0])?.title ?? "Terminal"
+                        let session = workspace.session(tab.root.leaves[0])
+                        let title = tab.customName ?? session?.compactTitle ?? "Terminal"
                         HStack(spacing: 6) {
                             Button { workspace.selectTab(tab.id) } label: {
                                 HStack(spacing: 7) {
@@ -107,7 +108,7 @@ struct TerminalWindowView: View {
                                         }
                                     Text(title).lineLimit(1).truncationMode(.middle)
                                 }.frame(width: 128, alignment: .leading)
-                            }.buttonStyle(.plain).help(title)
+                            }.buttonStyle(.plain).help([tab.customName, session?.titleHelp].compactMap { $0 }.joined(separator: "\n"))
                                 .accessibilityAddTraits(tab.id == workspace.activeTabID ? .isSelected : [])
                             Button { workspace.closeTab(tab.id) } label: {
                                 Image(systemName: "xmark").font(.system(size: 8, weight: .regular)).frame(width: 18, height: 24)
@@ -146,8 +147,6 @@ struct TerminalWindowView: View {
                 if !session.isRunning {
                     Button("Restart") { workspace.restartActive() }.buttonStyle(.link)
                 }
-                Text("·").opacity(0.5)
-                Text(displayDirectory(session.directory)).lineLimit(1).truncationMode(.middle).help(session.directory)
             }
             Spacer()
             if workspace.zoomedPaneID != nil {
@@ -161,18 +160,12 @@ struct TerminalWindowView: View {
         .padding(.horizontal, 16).frame(height: 28)
     }
 
-    private func displayDirectory(_ path: String) -> String {
-        let home = FileManager.default.homeDirectoryForCurrentUser.path
-        if path == home { return "~" }
-        return path.hasPrefix(home + "/") ? "~" + path.dropFirst(home.count) : path
-    }
-
     private func rename(_ tab: TerminalTab) {
         workspace.preventsAutoHide = true
         defer { workspace.preventsAutoHide = false }
         let alert = NSAlert()
         alert.messageText = "Rename Tab"
-        alert.informativeText = "Leave the name empty to use the shell title."
+        alert.informativeText = "Leave the name empty to use the folder name."
         let field = NSTextField(string: tab.customName ?? "")
         field.frame = NSRect(x: 0, y: 0, width: 260, height: 24)
         alert.accessoryView = field
@@ -217,7 +210,7 @@ private struct TerminalPaneView: View {
                 if showHeader {
                     HStack(spacing: 7) {
                         ActivityDot(activity: session.activity).opacity(workspace.activeID == id ? 1 : 0.65)
-                        Text(session.title).lineLimit(1).truncationMode(.middle)
+                        Text(session.compactTitle).lineLimit(1).truncationMode(.middle).help(session.titleHelp)
                         Spacer(minLength: 0)
                         Button {
                             workspace.select(id); workspace.toggleZoom()

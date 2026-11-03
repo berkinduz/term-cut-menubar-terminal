@@ -33,7 +33,7 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 
 ![term-cut compact window with two tabs and side-by-side split panes](docs/images/terminal-preview.jpg)
 
-Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane.
+Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane. Labels show the folder name; hover over a tab or pane label for its full path and shell title. Right-click a tab to give it a name such as `server` or `tests`. The status bar keeps activity and terminal dimensions in view.
 
 ### Settings
 
