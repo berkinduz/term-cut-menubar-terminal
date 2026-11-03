@@ -57,8 +57,8 @@ struct SettingsView: View {
                 if SettingsSection.general.matches(search) {
                     Section("General") {
                         Picker("Window mode", selection: $workspace.mode) {
-                            Text("Compact panel").tag(PanelMode.compact)
-                            Text("Drop-down terminal").tag(PanelMode.dropDown)
+                            Text(PanelMode.compact.displayName).tag(PanelMode.compact)
+                            Text(PanelMode.dropDown.displayName).tag(PanelMode.dropDown)
                         }
                         Toggle("Show terminal on launch", isOn: $settings.value.showOnLaunch)
                         Toggle("Keep visible when switching apps", isOn: $settings.value.keepVisible)
@@ -101,13 +101,13 @@ struct SettingsView: View {
 
                 if SettingsSection.windows.matches(search) {
                     Section("Windows") {
-                        numberSlider("Compact width", value: $settings.value.compactWidth, range: 520...1200, step: 10,
+                        numberSlider("Floating window width", value: $settings.value.compactWidth, range: 520...1200, step: 10,
                                      label: "\(Int(settings.value.compactWidth)) pt")
-                        numberSlider("Compact height", value: $settings.value.compactHeight, range: 300...850, step: 10,
+                        numberSlider("Floating window height", value: $settings.value.compactHeight, range: 300...850, step: 10,
                                      label: "\(Int(settings.value.compactHeight)) pt")
-                        numberSlider("Drop-down width", value: $settings.value.dropDownWidth, range: 0.5...1, step: 0.05,
+                        numberSlider("Drawer width", value: $settings.value.dropDownWidth, range: 0.5...1, step: 0.05,
                                      label: "\(Int((settings.value.dropDownWidth * 100).rounded()))%")
-                        numberSlider("Drop-down height", value: $settings.value.dropDownHeight, range: 0.3...0.9, step: 0.05,
+                        numberSlider("Drawer height", value: $settings.value.dropDownHeight, range: 0.3...0.9, step: 0.05,
                                      label: "\(Int((settings.value.dropDownHeight * 100).rounded()))%")
                         Text("You can also drag the window edges and pane dividers to resize them.")
                             .font(.caption).foregroundStyle(.secondary)
@@ -137,12 +137,12 @@ struct SettingsView: View {
                     Section("Keyboard Shortcuts") {
                         Toggle("Enable global shortcuts", isOn: $settings.value.shortcutsEnabled)
                         HStack {
-                            Text("Toggle compact panel"); Spacer()
+                            Text("Toggle floating window"); Spacer()
                             ShortcutRecorder(shortcut: $settings.value.compactShortcut)
                                 .frame(width: 170, height: 27).disabled(!settings.value.shortcutsEnabled)
                         }
                         HStack {
-                            Text("Toggle drop-down terminal"); Spacer()
+                            Text("Toggle top drawer"); Spacer()
                             ShortcutRecorder(shortcut: $settings.value.dropDownShortcut)
                                 .frame(width: 170, height: 27).disabled(!settings.value.shortcutsEnabled)
                         }

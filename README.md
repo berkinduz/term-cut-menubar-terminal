@@ -9,19 +9,25 @@
 **Your terminal. One shortcut away.**
 
 A free, open-source terminal for Mac that lives in your menu bar.
-Open your shell with a global hotkey, work across tabs and split panes, and keep your flow.
+Float a window beside your work, or pull a terminal down from the top of your screen. Your tabs, panes, and running commands stay with you.
 
 [Download DMG](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg) · [Features](#features) · [Build from source](#build-from-source) · [Shortcuts](#shortcuts)
 
 </div>
 
-![term-cut drop-down terminal with Kanagawa Dragon, tabs, and a single row of controls](docs/images/dropdown-preview.jpg)
+## Two ways to work
 
-*Open from the menu bar or a global shortcut.*
+| Floating Window | Top Drawer |
+| --- | --- |
+| A movable, resizable window for working beside your editor or browser. | A wide terminal that opens from the top of your screen and hides when you are done. |
+| ![Floating Window with tabs and split panes](docs/images/terminal-preview.jpg) | ![Top Drawer with Kanagawa Dragon and a thin toolbar](docs/images/dropdown-preview.jpg) |
+| Open with `⌃⌥Space`. | Open with `` ⌃⌥` ``. |
+
+Switch directly from the **Window / Drawer** menu in the toolbar. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
 
 ## Features
 
-- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a floating panel or a drop-down terminal from **⋯ → Window Mode**.
+- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a Floating Window or Top Drawer directly from the toolbar.
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
@@ -30,8 +36,6 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
 
 ### Tabs and split panes
-
-![term-cut compact window with two tabs and side-by-side split panes](docs/images/terminal-preview.jpg)
 
 Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane. Labels show the folder name; hover over a tab or pane label for its full path and shell title. Right-click a tab to give it a name such as `server` or `tests`. The status bar keeps activity and terminal dimensions in view.
 
@@ -60,14 +64,14 @@ cd term-cut-menubar-terminal
 open build/term-cut.app
 ```
 
-Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Window Mode**. You can also switch modes from the **View** menu or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
+Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Keep visible when switching apps**. Switch modes from the **Window / Drawer** toolbar menu, the **View** menu, or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
 
 ## Shortcuts
 
 | Action | Shortcut |
 | --- | --- |
-| Toggle compact panel | `⌃⌥Space` |
-| Toggle drop-down | `` ⌃⌥` `` |
+| Toggle Floating Window | `⌃⌥Space` |
+| Toggle Top Drawer | `` ⌃⌥` `` |
 | New tab | `⌘T` |
 | Split right / down | `⌘D` / `⇧⌘D` |
 | Next / previous pane | `⌘]` / `⌘[` |
@@ -82,7 +86,7 @@ Global shortcuts can be changed in Settings. Escape stays available to your shel
 
 Closing a pane or tab, or quitting the app, asks for confirmation when a command or background job is still running. Cancelling leaves the sessions open.
 
-The menu bar reopens the current window mode, including after a macOS permission dialog. Your last mode is also remembered when you quit and reopen the app. Switch modes from **Settings → Window mode**, global shortcuts, or **⋯ → Window Mode**.
+The menu bar reopens the current window mode, including after a macOS permission dialog. Your last mode is also remembered when you quit and reopen the app. Switch modes from the toolbar, **Settings → Window mode**, or global shortcuts.
 
 ## Activity indicators
 

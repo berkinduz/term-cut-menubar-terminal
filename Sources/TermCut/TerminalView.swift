@@ -53,14 +53,21 @@ struct TerminalWindowView: View {
                 } label: { Image(systemName: "rectangle.split.2x1").frame(width: 27, height: 28) }
                 .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
                 .help("Split terminal").accessibilityLabel("Split terminal")
-                iconButton(settings.value.keepVisible ? "pin.fill" : "pin", label: "Keep visible when switching apps",
-                           active: settings.value.keepVisible) { settings.value.keepVisible.toggle(); workspace.focusActive() }
                 Menu {
                     Picker("Window Mode", selection: Binding(get: { workspace.mode }, set: { workspace.onModeChange?($0) })) {
-                        Text("Compact").tag(PanelMode.compact)
-                        Text("Drop-down").tag(PanelMode.dropDown)
+                        ForEach(PanelMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
                     }
-                    .pickerStyle(.menu)
+                    .pickerStyle(.inline)
+                } label: {
+                    Text(workspace.mode.toolbarName).frame(height: 28).padding(.horizontal, 4)
+                }
+                .menuStyle(.borderlessButton).fixedSize()
+                .help("Window mode: \(workspace.mode.displayName)")
+                .accessibilityLabel("Window mode: \(workspace.mode.displayName)")
+                Menu {
+                    Toggle("Keep visible when switching apps", isOn: $settings.value.keepVisible)
                     Divider()
                     Button("Settings…") { workspace.onSettings?() }
                     Button("About term-cut") { workspace.onAbout?() }

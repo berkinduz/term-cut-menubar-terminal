@@ -4,10 +4,12 @@ import XCTest
 final class SettingsSearchTests: XCTestCase {
     func testVisibleLabelsAndThemeNamesFindTheirSections() {
         let examples: [(SettingsSection, String)] = [
-            (.general, "Window mode"), (.general, "Keep visible when switching apps"),
+            (.general, "Window mode"), (.general, "Floating Window"), (.general, "Top Drawer"),
+            (.general, "Keep visible when switching apps"),
             (.general, "Launch at login"), (.appearance, "Terminal theme"),
             (.appearance, "TEXT SIZE"), (.appearance, "Kanagawa Dragon"),
             (.appearance, "Translucent window bars"), (.windows, "drop down height"),
+            (.windows, "Floating window width"), (.windows, "Drawer height"),
             (.terminal, "Cursor shape"), (.terminal, "Use Option as Meta"),
             (.terminal, "New sessions inherit the current directory"),
             (.keyboardShortcuts, "New tab"), (.keyboardShortcuts, "Close pane"),

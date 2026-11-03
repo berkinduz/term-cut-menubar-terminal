@@ -96,8 +96,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func statusItemClicked() {
         if NSApp.currentEvent?.type == .rightMouseUp {
             let menu = NSMenu()
-            add("Show Compact Terminal", action: #selector(showCompact), to: menu)
-            add("Show Drop-down Terminal", action: #selector(showDropDown), to: menu)
+            add("Show \(PanelMode.compact.displayName)", action: #selector(showCompact), to: menu)
+            add("Show \(PanelMode.dropDown.displayName)", action: #selector(showDropDown), to: menu)
             menu.addItem(.separator())
             add("Settings…", action: #selector(showSettings), key: ",", to: menu)
             add("About term-cut", action: #selector(showAbout), to: menu)
@@ -185,8 +185,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let find = add("Find…", action: #selector(NSTextView.performFindPanelAction(_:)), key: "f", to: edit, responderChain: true)
         find.tag = Int(NSFindPanelAction.showFindPanel.rawValue)
         let view = NSMenu(title: "View")
-        add("Compact Window", action: #selector(showCompact), to: view)
-        add("Drop-down Window", action: #selector(showDropDown), to: view)
+        add(PanelMode.compact.displayName, action: #selector(showCompact), to: view)
+        add(PanelMode.dropDown.displayName, action: #selector(showDropDown), to: view)
         view.addItem(.separator())
         add("Larger Text", action: #selector(increaseText), key: "+", to: view)
         add("Smaller Text", action: #selector(decreaseText), key: "-", to: view)
