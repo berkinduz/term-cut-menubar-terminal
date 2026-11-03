@@ -17,17 +17,23 @@ Float a window beside your work, or pull a terminal down from the top of your sc
 
 ## Two ways to work
 
-| Floating Window | Top Drawer |
-| --- | --- |
-| A movable, resizable window for working beside your editor or browser. | A wide terminal that opens from the top of your screen and hides when you are done. |
-| ![Floating Window with tabs and split panes](docs/images/terminal-preview.jpg) | ![Top Drawer with Kanagawa Dragon and a thin toolbar](docs/images/dropdown-preview.jpg) |
-| Open with `⌃⌥Space`. | Open with `` ⌃⌥` ``. |
+### Floating Window
 
-Open **Layout**, the split-panel button beside **+**, to choose a mode. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
+A movable, resizable window for working beside your editor or browser. Open with `⌃⌥Space`.
+
+![Real Floating Window with tabs and split panes on a designed desktop](docs/images/terminal-preview.png)
+
+### Top Drawer
+
+A wide terminal that opens from the top of your screen and hides when you are done. Open with `` ⌃⌥` ``.
+
+![Real Top Drawer with Kanagawa Dragon on a designed desktop](docs/images/dropdown-preview.png)
+
+Choose a mode from **More options (⋯)**, the **View** menu, or the menu bar icon's right-click menu. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
 
 ## Features
 
-- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose a Floating Window or Top Drawer directly from the toolbar.
+- **Always within reach.** Open from the menu bar or a customizable global keyboard shortcut. Choose Floating Window or Top Drawer from **More options (⋯)** or the **View** menu.
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
@@ -37,19 +43,15 @@ Open **Layout**, the split-panel button beside **+**, to choose a mode. Both mod
 
 ### Tabs and split panes
 
-Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane. Labels show the folder name; hover over a tab or pane label for its full path and shell title. Right-click a tab to give it a name such as `server` or `tests`. The status bar keeps activity and terminal dimensions in view.
+Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane. Labels show the folder name, with **Home** and **Root** for those locations; hover over a tab or pane label for its full path and shell title. Right-click a tab to give it a name such as `server` or `tests`. The status bar keeps activity and terminal dimensions in view.
 
 ### Settings
 
 Search settings by name, from themes and font sizes to window proportions and keyboard shortcuts. Kanagawa Dragon pairs warm charcoal with muted terminal colors.
 
-<img src="docs/images/settings-preview.jpg" alt="Appearance settings with Kanagawa Dragon, SF Mono, text size, terminal padding, and translucent window bars" width="620" />
-
 ## Install on macOS
 
 [Download the latest release](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg), open the disk image, and drag **term-cut** into **Applications**. Requires macOS 13 or later; supports Apple silicon and Intel.
-
-<img src="docs/images/install-preview.jpg" alt="DMG installer with term-cut on the left and the Applications folder on the right" width="560" />
 
 Releases are ad-hoc signed without Apple notarization. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Building from source is also supported.
 
@@ -64,7 +66,7 @@ cd term-cut-menubar-terminal
 open build/term-cut.app
 ```
 
-Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Keep visible when switching apps**. Switch modes from the **Layout** toolbar menu, the **View** menu, or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
+Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for window modes, Settings, About, and **Keep visible when switching apps**. You can also switch modes from the **View** menu or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
 
 ## Shortcuts
 

@@ -26,7 +26,7 @@ struct TerminalWindowView: View {
         .background {
             if settings.value.glassEnabled && !reduceTransparency {
                 WindowBarMaterial(light: theme == .paper)
-                    .overlay(Color(theme.background).opacity(0.06))
+                    .overlay(Color(theme.background).opacity(0.20))
                     .allowsHitTesting(false)
             } else {
                 Color(theme.background)
@@ -46,6 +46,14 @@ struct TerminalWindowView: View {
             HStack(spacing: 3) {
                 iconButton("plus", label: "New tab (⌘T)") { workspace.addSession() }
                 Menu {
+                    Button { workspace.split(.horizontal) } label: { Label("Split Right", systemImage: "rectangle.split.2x1") }
+                    Button { workspace.split(.vertical) } label: { Label("Split Down", systemImage: "rectangle.split.1x2") }
+                    Divider()
+                    Button(workspace.zoomedPaneID == nil ? "Focus Pane" : "Show All Panes") { workspace.toggleZoom() }
+                } label: { Image(systemName: "rectangle.split.2x1").frame(width: 27, height: 28) }
+                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                .help("Split terminal").accessibilityLabel("Split terminal")
+                Menu {
                     Picker("Window Mode", selection: Binding(get: { workspace.mode }, set: { workspace.onModeChange?($0) })) {
                         ForEach(PanelMode.allCases, id: \.self) { mode in
                             Text(mode.displayName).tag(mode)
@@ -53,15 +61,6 @@ struct TerminalWindowView: View {
                     }
                     .pickerStyle(.inline)
                     Divider()
-                    Button { workspace.split(.horizontal) } label: { Label("Split Right", systemImage: "rectangle.split.2x1") }
-                    Button { workspace.split(.vertical) } label: { Label("Split Down", systemImage: "rectangle.split.1x2") }
-                    Divider()
-                    Button(workspace.zoomedPaneID == nil ? "Focus Pane" : "Show All Panes") { workspace.toggleZoom() }
-                } label: { Image(systemName: "rectangle.split.2x1").frame(width: 27, height: 28) }
-                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                .help("Layout — \(workspace.mode.displayName)")
-                .accessibilityLabel("Layout and window mode: \(workspace.mode.displayName)")
-                Menu {
                     Toggle("Keep visible when switching apps", isOn: $settings.value.keepVisible)
                     Divider()
                     Button("Settings…") { workspace.onSettings?() }
@@ -265,7 +264,7 @@ private struct WindowBarMaterial: NSViewRepresentable {
         view.material = .underWindowBackground
         view.blendingMode = .behindWindow
         view.state = .active
-        view.alphaValue = 0.8
+        view.alphaValue = 1
         return view
     }
 
