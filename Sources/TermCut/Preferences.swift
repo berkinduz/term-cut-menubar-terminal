@@ -21,6 +21,7 @@ struct GlobalShortcut: Codable, Equatable {
 }
 
 enum TerminalTheme: String, Codable, CaseIterable, Identifiable {
+    case kanagawaDragon = "Kanagawa Dragon"
     case midnight = "Midnight"
     case slate = "Slate"
     case paper = "Paper"
@@ -28,23 +29,41 @@ enum TerminalTheme: String, Codable, CaseIterable, Identifiable {
 
     var background: NSColor {
         switch self {
+        case .kanagawaDragon: return NSColor(hex: 0x181616)
         case .midnight: return NSColor(hex: 0x14181E)
         case .slate: return NSColor(hex: 0x252B34)
         case .paper: return NSColor(hex: 0xF7F6F2)
         }
     }
-    var foreground: NSColor { NSColor(hex: self == .paper ? 0x30363D : 0xD9E1EA) }
-    var accent: NSColor { NSColor(hex: self == .paper ? 0x157467 : 0x82CDBB) }
-    var secondary: NSColor { NSColor(hex: self == .paper ? 0x66736F : 0x8E9BA9) }
+    var foreground: NSColor {
+        if self == .kanagawaDragon { return NSColor(hex: 0xC5C9C5) }
+        return NSColor(hex: self == .paper ? 0x30363D : 0xD9E1EA)
+    }
+    var accent: NSColor {
+        if self == .kanagawaDragon { return NSColor(hex: 0x8BA4B0) }
+        return NSColor(hex: self == .paper ? 0x157467 : 0x82CDBB)
+    }
+    var secondary: NSColor {
+        if self == .kanagawaDragon { return NSColor(hex: 0xA6A69C) }
+        return NSColor(hex: self == .paper ? 0x66736F : 0x8E9BA9)
+    }
+    var selection: NSColor {
+        self == .kanagawaDragon ? NSColor(hex: 0x223249) : accent.withAlphaComponent(0.3)
+    }
     var chrome: NSColor {
         switch self {
+        case .kanagawaDragon: return NSColor(hex: 0x0D0C0C)
         case .midnight: return NSColor(hex: 0x1B2028)
         case .slate: return NSColor(hex: 0x2C333E)
         case .paper: return NSColor(hex: 0xEEEEE8)
         }
     }
     var ansi: [UInt32] {
-        self == .paper
+        if self == .kanagawaDragon {
+            return [0x0D0C0C, 0xC4746E, 0x8A9A7B, 0xC4B28A, 0x8BA4B0, 0xA292A3, 0x8EA4A2, 0xC8C093,
+                    0xA6A69C, 0xE46876, 0x87A987, 0xE6C384, 0x7FB4CA, 0x938AA9, 0x7AA89F, 0xC5C9C5]
+        }
+        return self == .paper
             ? [0x30363D, 0xB43C46, 0x37753B, 0x936B16, 0x3168B0, 0x8C4EB0, 0x247D80, 0xD0D0C7,
                0x69746C, 0xCD4854, 0x428747, 0xA67A19, 0x407DCC, 0xA05FC5, 0x299495, 0xFFFFFF]
             : [0x252B34, 0xE88388, 0xA0CC9B, 0xE5CA8B, 0x8AB5E5, 0xC2A0DB, 0x83CBC7, 0xD9E1EA,
@@ -80,7 +99,7 @@ enum TerminalCursor: String, Codable, CaseIterable, Identifiable {
 }
 
 struct AppPreferences: Codable, Equatable {
-    var theme: TerminalTheme = .midnight
+    var theme: TerminalTheme = .kanagawaDragon
     var font: TerminalFont = .system
     var customFontName: String = "Menlo-Regular"
     var fontSize: Double = 13
@@ -104,6 +123,45 @@ struct AppPreferences: Codable, Equatable {
     var shortcutsEnabled: Bool = true
     var compactShortcut: GlobalShortcut = .compact
     var dropDownShortcut: GlobalShortcut = .dropDown
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case theme, font, customFontName, fontSize, cursor, cursorBlinks
+        case compactWidth, compactHeight, dropDownHeight, dropDownWidth, menuBarMode
+        case keepVisible, showOnLaunch, optionAsMeta, scrollback, animationsEnabled, glassEnabled
+        case dimInactivePanes, showStatusBar, terminalPadding, inheritDirectory, shortcutsEnabled
+        case compactShortcut, dropDownShortcut
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        // One missing or unreadable field must not discard the other saved settings.
+        theme = (try? values.decode(TerminalTheme.self, forKey: .theme)) ?? theme
+        font = (try? values.decode(TerminalFont.self, forKey: .font)) ?? font
+        customFontName = (try? values.decode(String.self, forKey: .customFontName)) ?? customFontName
+        fontSize = (try? values.decode(Double.self, forKey: .fontSize)) ?? fontSize
+        cursor = (try? values.decode(TerminalCursor.self, forKey: .cursor)) ?? cursor
+        cursorBlinks = (try? values.decode(Bool.self, forKey: .cursorBlinks)) ?? cursorBlinks
+        compactWidth = (try? values.decode(Double.self, forKey: .compactWidth)) ?? compactWidth
+        compactHeight = (try? values.decode(Double.self, forKey: .compactHeight)) ?? compactHeight
+        dropDownHeight = (try? values.decode(Double.self, forKey: .dropDownHeight)) ?? dropDownHeight
+        dropDownWidth = (try? values.decode(Double.self, forKey: .dropDownWidth)) ?? dropDownWidth
+        menuBarMode = (try? values.decode(PanelMode.self, forKey: .menuBarMode)) ?? menuBarMode
+        keepVisible = (try? values.decode(Bool.self, forKey: .keepVisible)) ?? keepVisible
+        showOnLaunch = (try? values.decode(Bool.self, forKey: .showOnLaunch)) ?? showOnLaunch
+        optionAsMeta = (try? values.decode(Bool.self, forKey: .optionAsMeta)) ?? optionAsMeta
+        scrollback = (try? values.decode(Int.self, forKey: .scrollback)) ?? scrollback
+        animationsEnabled = (try? values.decode(Bool.self, forKey: .animationsEnabled)) ?? animationsEnabled
+        glassEnabled = (try? values.decode(Bool.self, forKey: .glassEnabled)) ?? glassEnabled
+        dimInactivePanes = (try? values.decode(Bool.self, forKey: .dimInactivePanes)) ?? dimInactivePanes
+        showStatusBar = (try? values.decode(Bool.self, forKey: .showStatusBar)) ?? showStatusBar
+        terminalPadding = (try? values.decode(Double.self, forKey: .terminalPadding)) ?? terminalPadding
+        inheritDirectory = (try? values.decode(Bool.self, forKey: .inheritDirectory)) ?? inheritDirectory
+        shortcutsEnabled = (try? values.decode(Bool.self, forKey: .shortcutsEnabled)) ?? shortcutsEnabled
+        compactShortcut = (try? values.decode(GlobalShortcut.self, forKey: .compactShortcut)) ?? compactShortcut
+        dropDownShortcut = (try? values.decode(GlobalShortcut.self, forKey: .dropDownShortcut)) ?? dropDownShortcut
+    }
 }
 
 final class SettingsStore: ObservableObject {
@@ -130,7 +188,10 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    func reset() { value = AppPreferences() }
+    func reset() {
+        defaults.removeObject(forKey: "lastWindowMode")
+        value = AppPreferences()
+    }
 }
 
 extension NSColor {

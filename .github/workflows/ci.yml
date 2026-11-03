@@ -31,5 +31,4 @@ jobs:
         with:
           name: term-cut-macos
           path: |
-            build/term-cut.zip
             build/term-cut.dmg

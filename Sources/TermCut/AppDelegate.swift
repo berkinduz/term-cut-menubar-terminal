@@ -21,9 +21,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         workspace.onModeChange = { [weak self] in self?.terminalPanel.show($0) }
         workspace.onSettings = { [weak self] in self?.showSettings() }
         workspace.onAbout = { [weak self] in self?.showAbout() }
+        workspace.onConfirmTermination = { sessions in
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "Stop running commands?"
+            alert.informativeText = sessions.count == 1
+                ? "This session has a running command or background job. Closing it will stop its processes."
+                : "\(sessions.count) sessions have running commands or background jobs. Closing them will stop their processes."
+            alert.addButton(withTitle: "Cancel")
+            alert.addButton(withTitle: "Stop and Close")
+            return alert.runModal() == .alertSecondButtonReturn
+        }
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "terminal", accessibilityDescription: "term-cut")
+            button.image = MenuBarIcon.makeImage()
             button.image?.isTemplate = true
             button.toolTip = "term-cut — click to toggle, right-click for options"
             button.target = self
@@ -68,6 +79,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         return false
     }
     func applicationWillTerminate(_ notification: Notification) { workspace?.stopAll() }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let workspace else { return .terminateNow }
+        return workspace.confirmTermination(of: workspace.sessions) ? .terminateNow : .terminateCancel
+    }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     private func updateActivityIndicator() {

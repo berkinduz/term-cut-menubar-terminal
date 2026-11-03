@@ -3,6 +3,13 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 configuration="${CONFIGURATION:-release}"
+swift_build() {
+  if [ -n "${SWIFT_BUILD_SYSTEM:-}" ]; then
+    swift build --build-system "$SWIFT_BUILD_SYSTEM" "$@"
+  else
+    swift build "$@"
+  fi
+}
 architectures=("$(uname -m)")
 case "${1:-}" in
   --universal) architectures=(arm64 x86_64) ;;
@@ -13,8 +20,8 @@ esac
 binary_paths=()
 resource_directory=""
 for architecture in "${architectures[@]}"; do
-  swift build --configuration "$configuration" --product TermCut --arch "$architecture"
-  binary_directory="$(swift build --configuration "$configuration" --show-bin-path --arch "$architecture")"
+  swift_build --configuration "$configuration" --product TermCut --arch "$architecture"
+  binary_directory="$(swift_build --configuration "$configuration" --show-bin-path --arch "$architecture")"
   binary_paths+=("$binary_directory/TermCut")
   if [ -z "$resource_directory" ]; then resource_directory="$binary_directory"; fi
 done

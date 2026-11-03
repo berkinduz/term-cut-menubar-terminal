@@ -55,7 +55,7 @@ jobs:
       - name: Checksums
         if: steps.publish.outputs.required == 'true'
         working-directory: build
-        run: shasum -a 256 term-cut.dmg term-cut.zip > SHA256SUMS
+        run: shasum -a 256 term-cut.dmg > SHA256SUMS
       - name: Publish release
         if: steps.publish.outputs.required == 'true'
         env:
@@ -64,7 +64,7 @@ jobs:
           RELEASE_COMMIT: ${{ github.event.workflow_run.head_sha }}
         run: |
           gh release create "$RELEASE_TAG" \
-            build/term-cut.dmg build/term-cut.zip build/SHA256SUMS \
+            build/term-cut.dmg build/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" \
             --target "$RELEASE_COMMIT" \
             --title "term-cut $RELEASE_TAG" \

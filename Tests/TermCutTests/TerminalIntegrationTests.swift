@@ -64,6 +64,7 @@ final class TerminalIntegrationTests: XCTestCase {
         defer { defaults.removePersistentDomain(forName: suite) }
         let settings = SettingsStore(defaults: defaults)
         let workspace = TerminalWorkspace(settings: settings)
+        workspace.onConfirmTermination = { _ in true }
         defer { workspace.stopAll() }
         let first = workspace.addSession(configuration: configuration())
         let firstTab = workspace.activeTabID!
@@ -79,7 +80,7 @@ final class TerminalIntegrationTests: XCTestCase {
         workspace.addSession(configuration: configuration())
         XCTAssertEqual(workspace.tabs.count, 2)
         workspace.selectTab(firstTab)
-        XCTAssertEqual(workspace.activeID, first.id)
+        XCTAssertEqual(workspace.activeID, second.id)
         settings.value.theme = .paper
         settings.value.fontSize = 16
         settings.value.font = .custom
@@ -166,6 +167,7 @@ final class TerminalIntegrationTests: XCTestCase {
         let defaults = UserDefaults(suiteName: suite)!
         defer { defaults.removePersistentDomain(forName: suite) }
         let workspace = TerminalWorkspace(settings: SettingsStore(defaults: defaults))
+        workspace.onConfirmTermination = { _ in true }
         defer { workspace.stopAll() }
         let first = workspace.addSession(configuration: configuration())
         let firstTab = workspace.activeTabID!

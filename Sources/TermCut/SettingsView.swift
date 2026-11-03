@@ -46,7 +46,16 @@ struct SettingsView: View {
                 .accessibilityLabel("Search settings")
 
             Form {
-                if matches("general startup mode login pin menu bar launch hide visibility compact drop-down") {
+                if !SettingsSection.allCases.contains(where: { $0.matches(search) }) {
+                    Section {
+                        VStack(spacing: 8) {
+                            Text("No matching settings").font(.headline)
+                            Text("Try a different setting name.").foregroundStyle(.secondary)
+                            Button("Clear Search") { search = "" }
+                        }.frame(maxWidth: .infinity).padding(.vertical, 20)
+                    }
+                }
+                if SettingsSection.general.matches(search) {
                     Section("General") {
                         Picker("Window mode", selection: $workspace.mode) {
                             Text("Compact panel").tag(PanelMode.compact)
@@ -64,7 +73,7 @@ struct SettingsView: View {
                     }
                 }
 
-                if matches("appearance theme color font size typography glass motion animations status bar dim padding") {
+                if SettingsSection.appearance.matches(search) {
                     Section("Appearance") {
                         Picker("Terminal theme", selection: $settings.value.theme) {
                             ForEach(TerminalTheme.allCases) { Text($0.rawValue).tag($0) }
@@ -82,16 +91,16 @@ struct SettingsView: View {
                         numberSlider("Text size", value: $settings.value.fontSize, range: 10...24, label: "\(Int(settings.value.fontSize)) pt")
                         numberSlider("Terminal padding", value: $settings.value.terminalPadding, range: 4...24, label: "\(Int(settings.value.terminalPadding)) pt")
                         terminalPreview
-                        Toggle("Glass controls", isOn: $settings.value.glassEnabled)
+                        Toggle("Translucent window bars", isOn: $settings.value.glassEnabled)
                         Toggle("Animate window transitions", isOn: $settings.value.animationsEnabled)
                         Toggle("Dim inactive panes", isOn: $settings.value.dimInactivePanes)
                         Toggle("Show status bar", isOn: $settings.value.showStatusBar)
-                        Text("Glass controls use Liquid Glass on macOS 26 and later. Motion and transparency follow your accessibility settings.")
+                        Text("Window bars use a blurred, translucent background. Motion and transparency follow your accessibility settings.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
 
-                if matches("window panel compact drop-down dropdown width height size") {
+                if SettingsSection.windows.matches(search) {
                     Section("Windows") {
                         numberSlider("Compact width", value: $settings.value.compactWidth, range: 520...1200, step: 10,
                                      label: "\(Int(settings.value.compactWidth)) pt")
@@ -106,7 +115,7 @@ struct SettingsView: View {
                     }
                 }
 
-                if matches("terminal shell cursor blink scrollback history option meta directory panes tabs") {
+                if SettingsSection.terminal.matches(search) {
                     Section("Terminal") {
                         Picker("Cursor shape", selection: $settings.value.cursor) {
                             ForEach(TerminalCursor.allCases) { Text($0.rawValue).tag($0) }
@@ -125,7 +134,7 @@ struct SettingsView: View {
                     }
                 }
 
-                if matches("keyboard shortcuts hotkey keybind global compact drop-down split tabs find focus zoom") {
+                if SettingsSection.keyboardShortcuts.matches(search) {
                     Section("Keyboard Shortcuts") {
                         Toggle("Enable global shortcuts", isOn: $settings.value.shortcutsEnabled)
                         HStack {
@@ -151,15 +160,19 @@ struct SettingsView: View {
                     }
                 }
 
-                Section {
-                    HStack {
-                        Text("Your sessions stay open when settings change.").font(.caption).foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Restore Defaults") { settings.reset() }.controlSize(.small)
+                if SettingsSection.defaults.matches(search) {
+                    Section {
+                        HStack {
+                            Text("Your sessions stay open when settings change.").font(.caption).foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Restore Defaults") { settings.reset() }.controlSize(.small)
+                        }
                     }
                 }
-                Section("About term-cut") {
-                    AboutContent(compact: true).frame(maxWidth: .infinity).padding(.vertical, 14)
+                if SettingsSection.about.matches(search) {
+                    Section("About term-cut") {
+                        AboutContent(compact: true).frame(maxWidth: .infinity).padding(.vertical, 14)
+                    }
                 }
             }
             .formStyle(.grouped).scrollContentBackground(.hidden)
@@ -170,7 +183,6 @@ struct SettingsView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in login.refresh() }
     }
 
-    private func matches(_ terms: String) -> Bool { search.isEmpty || terms.localizedCaseInsensitiveContains(search) }
     private func shortcutRow(_ name: String, _ keys: String) -> some View {
         HStack { Text(name).foregroundStyle(.secondary); Spacer(); Text(keys).font(.system(.body, design: .monospaced)) }
     }

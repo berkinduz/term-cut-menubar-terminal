@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Darwin
 import SwiftTerm
 import TermCutCore
 
@@ -14,8 +15,30 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
     var onUpdate: (() -> Void)?
     private var stopped = false
     private var lastPreferences: AppPreferences?
+    private let shellExecutable: String
+
+    var hasRunningCommand: Bool {
+        guard isRunning, terminal.process.running else { return false }
+        if activity == .running { return true }
+        let shellPID = terminal.process.shellPid
+        guard shellPID > 0 else { return false }
+        var path = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let pathLength = path.withUnsafeMutableBytes { proc_pidpath(shellPID, $0.baseAddress, UInt32($0.count)) }
+        guard pathLength > 0 else { return true }
+        if URL(fileURLWithPath: String(cString: path)).resolvingSymlinksInPath().path != shellExecutable {
+            return true // exec can replace the shell without changing its PID or process group.
+        }
+        let foreground = tcgetpgrp(terminal.process.childfd)
+        if foreground > 0 && foreground != shellPID { return true }
+        // A prompt can be ready while background jobs still belong to its shell.
+        var children = [pid_t](repeating: 0, count: 16)
+        return children.withUnsafeMutableBytes {
+            proc_listchildpids(shellPID, $0.baseAddress, Int32($0.count)) > 0
+        }
+    }
 
     init(configuration: ShellConfiguration, preferences: AppPreferences) {
+        shellExecutable = URL(fileURLWithPath: configuration.executable).resolvingSymlinksInPath().path
         title = URL(fileURLWithPath: configuration.executable).lastPathComponent
         directory = configuration.workingDirectory
         terminal = LocalProcessTerminalView(
@@ -24,6 +47,9 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
             options: TerminalOptions(cursorStyle: preferences.terminalCursorStyle, scrollback: preferences.scrollback)
         )
         super.init()
+        // SwiftTerm's standalone overlay scroller stays visible even without history.
+        // Hide the indicator while retaining the terminal's wheel/trackpad scrolling.
+        terminal.subviews.compactMap { $0 as? NSScroller }.forEach { $0.isHidden = true }
         terminal.processDelegate = self
         terminal.setAccessibilityLabel("Terminal session")
         terminal.terminal.registerOscHandler(code: ShellIntegration.statusCode) { [weak self] data in
@@ -46,7 +72,7 @@ final class TerminalSession: NSObject, LocalProcessTerminalViewDelegate {
             terminal.nativeBackgroundColor = preferences.theme.background
             terminal.nativeForegroundColor = preferences.theme.foreground
             terminal.caretColor = preferences.theme.accent
-            terminal.selectedTextBackgroundColor = preferences.theme.accent.withAlphaComponent(0.3)
+            terminal.selectedTextBackgroundColor = preferences.theme.selection
             terminal.selectedTextForegroundColor = preferences.theme.foreground
             terminal.installColors(preferences.theme.ansi.map {
                 Color(red: UInt16(($0 >> 16) & 255) * 257, green: UInt16(($0 >> 8) & 255) * 257, blue: UInt16($0 & 255) * 257)
@@ -129,7 +155,13 @@ final class TerminalWorkspace: ObservableObject {
     @Published private(set) var sessions: [TerminalSession] = []
     @Published private(set) var tabs: [TerminalTab] = []
     @Published private(set) var activeTabID: UUID?
-    @Published private(set) var activeID: UUID?
+    @Published private(set) var activeID: UUID? {
+        didSet {
+            if let activeID, let tab = activeTab, tab.root.leaves.contains(activeID) {
+                selectedPaneIDs[tab.id] = activeID
+            }
+        }
+    }
     @Published private(set) var zoomedPaneID: UUID?
     @Published var mode: PanelMode {
         didSet { settings.lastWindowMode = mode }
@@ -139,8 +171,10 @@ final class TerminalWorkspace: ObservableObject {
     var onModeChange: ((PanelMode) -> Void)?
     var onSettings: (() -> Void)?
     var onAbout: (() -> Void)?
+    var onConfirmTermination: (([TerminalSession]) -> Bool)?
     var preventsAutoHide = false
     private var splitFractions: [String: Double] = [:]
+    private var selectedPaneIDs: [UUID: UUID] = [:]
 
     init(settings: SettingsStore) {
         self.settings = settings
@@ -169,7 +203,10 @@ final class TerminalWorkspace: ObservableObject {
                                         integrationDirectory: ShellIntegration.zshDirectory)
         }
         let session = TerminalSession(configuration: config, preferences: settings.value)
-        session.onUpdate = { [weak self] in self?.objectWillChange.send() }
+        session.onUpdate = { [weak self] in
+            // SwiftTerm can report a resize during SwiftUI's layout pass.
+            DispatchQueue.main.async { [weak self] in self?.objectWillChange.send() }
+        }
         sessions.append(session)
         return session
     }
@@ -186,16 +223,28 @@ final class TerminalWorkspace: ObservableObject {
         return session
     }
 
-    func select(_ id: UUID) { activeID = id; focusActive() }
+    func select(_ id: UUID) {
+        guard activeTab?.root.leaves.contains(id) == true else { return }
+        activeID = id
+        focusActive()
+    }
     func synchronizeFocus(with responder: NSResponder?) {
-        if let session = sessions.first(where: { $0.terminal === responder }), activeID != session.id { activeID = session.id }
+        if let session = sessions.first(where: { $0.terminal === responder }),
+           activeTab?.root.leaves.contains(session.id) == true, activeID != session.id {
+            activeID = session.id
+        }
     }
     func selectTab(_ id: UUID) {
         guard let tab = tabs.first(where: { $0.id == id }) else { return }
+        guard activeTabID != id else { focusActive(); return }
         activeTabID = id
-        activeID = tab.root.leaves.first
+        activeID = selectedPane(in: tab)
         zoomedPaneID = nil
         focusActive()
+    }
+    private func selectedPane(in tab: TerminalTab) -> UUID? {
+        if let id = selectedPaneIDs[tab.id], tab.root.leaves.contains(id) { return id }
+        return tab.root.leaves.first
     }
     func split(_ axis: SplitAxis, configuration: ShellConfiguration? = nil) {
         guard let activeID, let index = tabs.firstIndex(where: { $0.id == activeTabID }) else { return }
@@ -212,6 +261,11 @@ final class TerminalWorkspace: ObservableObject {
         }
     }
     func close(_ id: UUID) {
+        guard let session = session(id), confirmTermination(of: [session]) else { return }
+        removeSession(id)
+    }
+
+    private func removeSession(_ id: UUID) {
         guard let index = sessions.firstIndex(where: { $0.id == id }) else { return }
         guard let tabIndex = tabs.firstIndex(where: { $0.root.leaves.contains(id) }) else { return }
         let tabID = tabs[tabIndex].id
@@ -220,14 +274,17 @@ final class TerminalWorkspace: ObservableObject {
             if activeID == id { activeID = root.leaves.first }
         } else {
             tabs.remove(at: tabIndex)
+            selectedPaneIDs.removeValue(forKey: tabID)
             if activeTabID == tabID {
                 activeTabID = tabs.isEmpty ? nil : tabs[min(tabIndex, tabs.count - 1)].id
-                activeID = activeTab?.root.leaves.first
+                activeID = activeTab.flatMap { selectedPane(in: $0) }
             }
         }
         sessions[index].stop()
         sessions.remove(at: index)
-        zoomedPaneID = nil
+        if let zoomedPaneID, activeTab?.root.leaves.contains(zoomedPaneID) != true {
+            self.zoomedPaneID = nil
+        }
         if sessions.isEmpty { onHide?() }
         focusActive()
     }
@@ -260,15 +317,30 @@ final class TerminalWorkspace: ObservableObject {
     }
     func closeTab(_ id: UUID) {
         guard let tab = tabs.first(where: { $0.id == id }) else { return }
-        tab.root.leaves.forEach { close($0) }
+        let candidates = tab.root.leaves.compactMap { session($0) }
+        guard confirmTermination(of: candidates) else { return }
+        tab.root.leaves.forEach { removeSession($0) }
     }
     func renameTab(_ id: UUID, name: String) {
         guard let index = tabs.firstIndex(where: { $0.id == id }) else { return }
         tabs[index].customName = name.isEmpty ? nil : name
     }
     func applyPreferences() {
+        if mode != settings.lastWindowMode { mode = settings.lastWindowMode }
         sessions.forEach { $0.apply(settings.value) }
         objectWillChange.send()
     }
     func stopAll() { sessions.forEach { $0.stop() } }
+
+    func confirmTermination(of candidates: [TerminalSession]) -> Bool {
+        let busy = candidates.filter(\.hasRunningCommand)
+        guard !busy.isEmpty else { return true }
+        let wasPreventingAutoHide = preventsAutoHide
+        preventsAutoHide = true
+        defer {
+            preventsAutoHide = wasPreventingAutoHide
+            focusActive()
+        }
+        return onConfirmTermination?(busy) ?? false
+    }
 }

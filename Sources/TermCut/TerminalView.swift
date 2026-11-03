@@ -7,14 +7,14 @@ struct TerminalWindowView: View {
     @ObservedObject var workspace: TerminalWorkspace
     @ObservedObject var settings: SettingsStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     private var theme: TerminalTheme { settings.value.theme }
 
     var body: some View {
         VStack(spacing: 0) {
             header
-            if workspace.tabs.count > 1 { tabBar }
-            Rectangle().fill(Color(theme.foreground).opacity(0.07)).frame(height: 1)
+            Rectangle().fill(Color(theme.foreground).opacity(0.04)).frame(height: 0.5)
             if let tab = workspace.activeTab {
                 PaneTreeView(node: workspace.zoomedPaneID.map { .leaf($0) } ?? tab.root,
                              workspace: workspace, settings: settings,
@@ -23,7 +23,15 @@ struct TerminalWindowView: View {
             }
             if settings.value.showStatusBar { footer }
         }
-        .background(Color(theme.background))
+        .background {
+            if settings.value.glassEnabled && !reduceTransparency {
+                WindowBarMaterial(light: theme == .paper)
+                    .overlay(Color(theme.background).opacity(0.06))
+                    .allowsHitTesting(false)
+            } else {
+                Color(theme.background)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(theme.foreground).opacity(0.12), lineWidth: 1))
         .foregroundStyle(Color(theme.foreground))
@@ -32,12 +40,9 @@ struct TerminalWindowView: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "terminal").font(.system(size: 16, weight: .medium)).foregroundStyle(Color(theme.accent))
-                Text("term-cut").font(.system(size: 13, weight: .semibold, design: .rounded))
-            }
-            Spacer(minLength: 4)
+        HStack(spacing: 8) {
+            tabBar
+            Spacer(minLength: 4).frame(width: 8)
             HStack(spacing: 3) {
                 iconButton("plus", label: "New tab (⌘T)") { workspace.addSession() }
                 Menu {
@@ -67,56 +72,70 @@ struct TerminalWindowView: View {
                 .help("More options").accessibilityLabel("More options")
                 iconButton("chevron.up", label: "Hide terminal") { workspace.onHide?() }
             }
-            .foregroundStyle(Color(theme.secondary))
-            .padding(3)
-            .modifier(ControlMaterial(enabled: settings.value.glassEnabled, theme: theme))
+            .font(.system(size: 11, weight: .regular))
+            .foregroundStyle(.primary)
+            .fixedSize()
         }
-        .padding(.horizontal, 16).padding(.vertical, 10)
+        .foregroundStyle(.primary)
+        .padding(.horizontal, 10).padding(.vertical, 3)
         .background(WindowDragArea())
-        .background(Color(theme.chrome))
     }
 
     private func iconButton(_ symbol: String, label: String, active: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: symbol).font(.system(size: 12, weight: .medium))
+            Image(systemName: symbol).font(.system(size: 11, weight: .regular))
                 .frame(width: 27, height: 28)
-                .foregroundStyle(active ? Color(theme.accent) : Color(theme.secondary))
+                .foregroundStyle(active ? Color(theme.accent) : Color.primary)
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).help(label).accessibilityLabel(label)
     }
 
     private var tabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                ForEach(workspace.tabs) { tab in
-                    HStack(spacing: 8) {
-                        Button { workspace.selectTab(tab.id) } label: {
-                            HStack(spacing: 7) {
-                                Image(systemName: tab.root.leaves.count > 1 ? "rectangle.split.2x1" : "terminal")
-                                    .overlay(alignment: .bottomTrailing) {
-                                        ActivityDot(activity: workspace.activity(for: tab))
-                                            .background(Circle().fill(Color(theme.chrome)).padding(-1))
-                                            .offset(x: 2, y: 2)
-                                    }
-                                Text(tab.customName ?? workspace.session(tab.root.leaves[0])?.title ?? "Terminal")
-                                    .lineLimit(1).truncationMode(.middle)
-                            }.frame(minWidth: 80, maxWidth: 160, alignment: .leading)
-                        }.buttonStyle(.plain)
-                        Button { workspace.closeTab(tab.id) } label: {
-                            Image(systemName: "xmark").font(.system(size: 8, weight: .semibold)).frame(width: 16, height: 20)
-                        }.buttonStyle(.plain).help("Close tab and its sessions").accessibilityLabel("Close tab")
-                    }
-                    .font(.system(size: 11))
-                    .padding(.horizontal, 10).padding(.vertical, 5)
-                    .background(tab.id == workspace.activeTabID ? Color(theme.foreground).opacity(0.08) : .clear,
-                                in: RoundedRectangle(cornerRadius: 7))
-                    .contextMenu {
-                        Button("Rename Tab…") { rename(tab) }
-                        Button("Close Tab") { workspace.closeTab(tab.id) }
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 4) {
+                    ForEach(workspace.tabs) { tab in
+                        let title = tab.customName ?? workspace.session(tab.root.leaves[0])?.title ?? "Terminal"
+                        HStack(spacing: 6) {
+                            Button { workspace.selectTab(tab.id) } label: {
+                                HStack(spacing: 7) {
+                                    Image(systemName: tab.root.leaves.count > 1 ? "rectangle.split.2x1" : "terminal")
+                                        .overlay(alignment: .bottomTrailing) {
+                                            ActivityDot(activity: workspace.activity(for: tab))
+                                                .background(Circle().fill(Color(theme.chrome)).padding(-1))
+                                                .offset(x: 2, y: 2)
+                                        }
+                                    Text(title).lineLimit(1).truncationMode(.middle)
+                                }.frame(width: 128, alignment: .leading)
+                            }.buttonStyle(.plain).help(title)
+                                .accessibilityAddTraits(tab.id == workspace.activeTabID ? .isSelected : [])
+                            Button { workspace.closeTab(tab.id) } label: {
+                                Image(systemName: "xmark").font(.system(size: 8, weight: .regular)).frame(width: 18, height: 24)
+                            }.buttonStyle(.plain).help("Close tab and its sessions").accessibilityLabel("Close tab")
+                        }
+                        .font(.system(size: 11))
+                        .padding(.horizontal, 8).padding(.vertical, 2)
+                        .background(tab.id == workspace.activeTabID ? Color(theme.foreground).opacity(0.045) : .clear,
+                                    in: RoundedRectangle(cornerRadius: 5))
+                        .contextMenu {
+                            Button("Rename Tab…") { rename(tab) }
+                            Button("Close Tab") { workspace.closeTab(tab.id) }
+                        }
+                        .id(tab.id)
                     }
                 }
-            }.padding(.horizontal, 12).padding(.bottom, 8)
-        }.background(Color(theme.chrome))
+            }
+            .onChange(of: workspace.activeTabID) { id in
+                if let id { proxy.scrollTo(id, anchor: .trailing) }
+            }
+            .background {
+                GeometryReader { geometry in
+                    Color.clear.onChange(of: geometry.size.width) { _ in
+                        if let id = workspace.activeTabID { proxy.scrollTo(id, anchor: .trailing) }
+                    }
+                }
+            }
+        }.frame(height: 28)
     }
 
     private var footer: some View {
@@ -140,7 +159,6 @@ struct TerminalWindowView: View {
         }
         .font(.system(size: 10)).foregroundStyle(Color(theme.secondary))
         .padding(.horizontal, 16).frame(height: 28)
-        .background(Color(theme.chrome).opacity(0.6))
     }
 
     private func displayDirectory(_ path: String) -> String {
@@ -213,19 +231,19 @@ private struct TerminalPaneView: View {
                     .font(.system(size: 10)).buttonStyle(.plain)
                     .foregroundStyle(Color(settings.value.theme.secondary))
                     .padding(.horizontal, 12).frame(height: 28)
-                    .background(Color(settings.value.theme.chrome).opacity(0.4))
                     .contentShape(Rectangle())
                     .onTapGesture { workspace.select(id) }
                 }
                 TerminalHost(session: session).id(id)
+                    .onAppear { if workspace.activeID == id { workspace.focusActive() } }
                     .padding(settings.value.terminalPadding)
+                    .background(Color(settings.value.theme.background))
                     .overlay(Color(settings.value.theme.background)
                         .opacity(settings.value.dimInactivePanes && workspace.activeID != id ? 0.15 : 0)
                         .allowsHitTesting(false))
             }
         }
         .frame(minWidth: 170, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity)
-        .background(Color(settings.value.theme.background))
     }
 }
 
@@ -244,15 +262,19 @@ private struct WindowDragArea: NSViewRepresentable {
     }
 }
 
-private struct ControlMaterial: ViewModifier {
-    let enabled: Bool
-    let theme: TerminalTheme
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @ViewBuilder func body(content: Content) -> some View {
-        if #available(macOS 26.0, *), enabled && !reduceTransparency {
-            content.glassEffect(.regular, in: .capsule)
-        } else {
-            content.background(Color(theme.foreground).opacity(0.05), in: Capsule())
-        }
+private struct WindowBarMaterial: NSViewRepresentable {
+    let light: Bool
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .underWindowBackground
+        view.blendingMode = .behindWindow
+        view.state = .active
+        view.alphaValue = 0.8
+        return view
+    }
+
+    func updateNSView(_ view: NSVisualEffectView, context: Context) {
+        view.appearance = NSAppearance(named: light ? .aqua : .darkAqua)
     }
 }

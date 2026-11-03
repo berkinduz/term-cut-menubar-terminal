@@ -23,8 +23,8 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
-- **Quiet by design.** Native controls, considered colors, gentle transitions, and Liquid Glass on macOS 26+.
-- **Make it yours.** Themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
+- **Quiet by design.** A single row of tabs and controls, translucent window bars, considered colors, and gentle transitions.
+- **Make it yours.** Kanagawa Dragon by default, plus other themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
 
 ### Tabs and split panes
@@ -71,6 +71,8 @@ Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the 
 | Settings | `⌘,` |
 
 Global shortcuts can be changed in Settings. Escape stays available to your shell and editors. Sessions last until you close them or quit the app; they are not restored after quitting. Working-directory inheritance requires shell OSC 7 support.
+
+Closing a pane or tab, or quitting the app, asks for confirmation when a command or background job is still running. Cancelling leaves the sessions open.
 
 The menu bar reopens the current window mode, including after a macOS permission dialog. Your last mode is also remembered when you quit and reopen the app. Switch modes from **Settings → Window mode**, global shortcuts, or **⋯ → Window Mode**.
 
