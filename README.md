@@ -23,7 +23,7 @@ Float a window beside your work, or pull a terminal down from the top of your sc
 | ![Floating Window with tabs and split panes](docs/images/terminal-preview.jpg) | ![Top Drawer with Kanagawa Dragon and a thin toolbar](docs/images/dropdown-preview.jpg) |
 | Open with `⌃⌥Space`. | Open with `` ⌃⌥` ``. |
 
-Switch directly from the **Window / Drawer** menu in the toolbar. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
+Open **Layout**, the split-panel button beside **+**, to choose a mode. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
 
 ## Features
 
@@ -64,7 +64,7 @@ cd term-cut-menubar-terminal
 open build/term-cut.app
 ```
 
-Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Keep visible when switching apps**. Switch modes from the **Window / Drawer** toolbar menu, the **View** menu, or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
+Drag `build/term-cut.app` into Applications. Open **More options (⋯)** in the terminal for Settings, About, and **Keep visible when switching apps**. Switch modes from the **Layout** toolbar menu, the **View** menu, or your global shortcuts. To create an Apple silicon + Intel build, add `--universal`. To package a disk image, run `./scripts/package-dmg.sh`.
 
 ## Shortcuts
 

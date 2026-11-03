@@ -140,6 +140,11 @@ final class TerminalIntegrationTests: XCTestCase {
 
         session.terminal.send(txt: "sleep 30\n")
         await eventually("A foreground command reports running") { session.activity == .running }
+        // preexec reports activity before zsh hands the PTY to the child process.
+        await eventually("The command owns the PTY before Control-C") {
+            let foreground = tcgetpgrp(session.terminal.process.childfd)
+            return foreground > 0 && foreground != session.terminal.process.shellPid
+        }
         session.terminal.send([3])
         await eventually("An interrupted command reports exit 130") { session.activity == .failed(130) }
         session.terminal.send(txt: "printf 'error text is ordinary output\\n' >&2\n")

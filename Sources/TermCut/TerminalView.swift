@@ -46,26 +46,21 @@ struct TerminalWindowView: View {
             HStack(spacing: 3) {
                 iconButton("plus", label: "New tab (⌘T)") { workspace.addSession() }
                 Menu {
-                    Button { workspace.split(.horizontal) } label: { Label("Split Right", systemImage: "rectangle.split.2x1") }
-                    Button { workspace.split(.vertical) } label: { Label("Split Down", systemImage: "rectangle.split.1x2") }
-                    Divider()
-                    Button(workspace.zoomedPaneID == nil ? "Focus Pane" : "Show All Panes") { workspace.toggleZoom() }
-                } label: { Image(systemName: "rectangle.split.2x1").frame(width: 27, height: 28) }
-                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                .help("Split terminal").accessibilityLabel("Split terminal")
-                Menu {
                     Picker("Window Mode", selection: Binding(get: { workspace.mode }, set: { workspace.onModeChange?($0) })) {
                         ForEach(PanelMode.allCases, id: \.self) { mode in
                             Text(mode.displayName).tag(mode)
                         }
                     }
                     .pickerStyle(.inline)
-                } label: {
-                    Text(workspace.mode.toolbarName).frame(height: 28).padding(.horizontal, 4)
-                }
-                .menuStyle(.borderlessButton).fixedSize()
-                .help("Window mode: \(workspace.mode.displayName)")
-                .accessibilityLabel("Window mode: \(workspace.mode.displayName)")
+                    Divider()
+                    Button { workspace.split(.horizontal) } label: { Label("Split Right", systemImage: "rectangle.split.2x1") }
+                    Button { workspace.split(.vertical) } label: { Label("Split Down", systemImage: "rectangle.split.1x2") }
+                    Divider()
+                    Button(workspace.zoomedPaneID == nil ? "Focus Pane" : "Show All Panes") { workspace.toggleZoom() }
+                } label: { Image(systemName: "rectangle.split.2x1").frame(width: 27, height: 28) }
+                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                .help("Layout — \(workspace.mode.displayName)")
+                .accessibilityLabel("Layout and window mode: \(workspace.mode.displayName)")
                 Menu {
                     Toggle("Keep visible when switching apps", isOn: $settings.value.keepVisible)
                     Divider()
