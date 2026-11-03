@@ -21,13 +21,13 @@ Float a window beside your work, or pull a terminal down from the top of your sc
 
 A movable, resizable window for working beside your editor or browser. Open with `⌃⌥Space`.
 
-![Real Floating Window with tabs and split panes on a designed desktop](docs/images/terminal-preview.png)
+![Floating Window showing a cart module on a macOS desktop with the term-cut menu bar icon](docs/images/terminal-preview.png)
 
 ### Top Drawer
 
 A wide terminal that opens from the top of your screen and hides when you are done. Open with `` ⌃⌥` ``.
 
-![Real Top Drawer with Kanagawa Dragon on a designed desktop](docs/images/dropdown-preview.png)
+![Top Drawer showing source code and four passing tests in split panes below the macOS menu bar](docs/images/dropdown-preview.png)
 
 Choose a mode from **More options (⋯)**, the **View** menu, or the menu bar icon's right-click menu. Both modes share the same sessions: a running command keeps running while you switch or hide the terminal. Set each mode's size and shortcut in Settings.
 

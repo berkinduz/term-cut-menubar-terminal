@@ -1,0 +1,1 @@
+{"name":"storefront-demo","private":true,"type":"module","scripts":{"test":"node --test --test-reporter=spec"}}

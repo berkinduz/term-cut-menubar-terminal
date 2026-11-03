@@ -7,26 +7,37 @@ from PIL import Image, ImageCms, ImageDraw, ImageFilter, ImageOps
 
 images = Path(__file__).resolve().parent.parent / 'docs' / 'images'
 size = (2048, 1280)
-wallpaper = Image.open(images / 'desktop-wallpaper.png').convert('RGB')
+desktop = Image.open(images / 'desktop-scene.png').convert('RGB')
+status_icon = Image.open(images / 'menu-bar-status.png').convert('RGBA')
 scenes = [
-    ('floating-window.jpg', 'terminal-preview.png', 208),
-    ('top-drawer.jpg', 'dropdown-preview.png', 24),
+    ('floating-window.jpg', 'terminal-preview.png', 440, 96),
+    ('top-drawer.jpg', 'dropdown-preview.png', 20, 88),
 ]
-for capture_name, output_name, top in scenes:
+for capture_name, output_name, left, top in scenes:
     capture_file = Image.open(images / 'captures' / capture_name)
-    capture = capture_file.convert('RGB')
+    # Exclude the capture's outer frame and its light corner matte.
+    capture = capture_file.convert('RGB').crop((
+        8, 8, capture_file.width - 8, capture_file.height - 8,
+    ))
     profile = capture_file.info.get('icc_profile')
-    background = ImageOps.fit(wallpaper, size, method=Image.Resampling.LANCZOS)
+    background = ImageOps.fit(desktop, size, method=Image.Resampling.LANCZOS)
+    icon = status_icon.convert('RGB')
     if profile:
+        target_profile = ImageCms.ImageCmsProfile(BytesIO(profile))
         background = ImageCms.profileToProfile(
             background, ImageCms.createProfile('sRGB'),
-            ImageCms.ImageCmsProfile(BytesIO(profile)), outputMode='RGB',
+            target_profile, outputMode='RGB',
         )
-    left = (size[0] - capture.width) // 2
-    mask = Image.new('L', capture.size, 0)
+        icon = ImageCms.profileToProfile(
+            icon, ImageCms.createProfile('sRGB'), target_profile, outputMode='RGB',
+        )
+    background.paste(icon, (1744, 10), status_icon.getchannel('A'))
+    scale = 4
+    mask = Image.new('L', (capture.width * scale, capture.height * scale), 0)
     ImageDraw.Draw(mask).rounded_rectangle(
-        (0, 0, capture.width - 1, capture.height - 1), radius=28, fill=255,
+        (0, 0, mask.width - 1, mask.height - 1), radius=20 * scale, fill=255,
     )
+    mask = mask.resize(capture.size, Image.Resampling.LANCZOS)
     shadow_mask = Image.new('L', size, 0)
     shadow_mask.paste(mask.point(lambda value: round(value * 0.42)), (left, top + 16))
     shadow_mask = shadow_mask.filter(ImageFilter.GaussianBlur(24))
