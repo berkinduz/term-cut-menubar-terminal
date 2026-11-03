@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/images/app-icon.png" alt="term-cut: a terminal opening from the menu bar" width="100" />
+
 # term-cut — macOS Menu Bar Terminal
 
 [![macOS](https://github.com/berkinduz/term-cut-menubar-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/berkinduz/term-cut-menubar-terminal/actions/workflows/ci.yml)
@@ -9,11 +11,11 @@
 A free, open-source terminal for Mac that lives in your menu bar.
 Open your shell with a global hotkey, work across tabs and split panes, and keep your flow.
 
-[Download for Mac](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg) · [Features](#features) · [Build from source](#build-from-source) · [Shortcuts](#shortcuts)
+[Download DMG](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg) · [Features](#features) · [Build from source](#build-from-source) · [Shortcuts](#shortcuts)
 
 </div>
 
-![term-cut drop-down terminal opened from the macOS menu bar overlaying a normal Finder window](docs/images/dropdown-preview.png)
+![term-cut drop-down terminal with Kanagawa Dragon, tabs, and a single row of controls](docs/images/dropdown-preview.jpg)
 
 *Open from the menu bar or a global shortcut.*
 
@@ -23,21 +25,27 @@ Open your shell with a global hotkey, work across tabs and split panes, and keep
 - **Room to work.** Tabs, resizable split panes, pane focus, and search.
 - **Sessions that stay.** Hide the window or switch layouts while commands keep running.
 - **Status at a glance.** Small green, yellow, and red dots show ready, running, and failed commands in the menu bar, tabs, and panes.
-- **Quiet by design.** A single row of tabs and controls, translucent window bars, considered colors, and gentle transitions.
+- **Quiet by design.** A thin row of tabs and controls, translucent window bars, and an unobstructed terminal canvas. Scroll through your history with a mouse wheel or trackpad.
 - **Make it yours.** Kanagawa Dragon by default, plus other themes, installed monospaced fonts, cursors, sizes, window proportions, scrollback, Meta keys, and startup behavior.
 - **A real terminal.** Your login shell, true color, Unicode, and interactive command-line tools. Powered by [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm).
 
 ### Tabs and split panes
 
-![term-cut terminal product preview with tabs and side-by-side split panes](docs/images/terminal-preview.png)
+![term-cut compact window with two tabs and side-by-side split panes](docs/images/terminal-preview.jpg)
+
+Keep separate tasks in tabs, split a workspace horizontally or vertically, and focus one pane when you need more room. Each tab remembers its selected pane.
 
 ### Settings
 
-![term-cut settings product preview with theme, font, spacing, and window preferences](docs/images/settings-preview.png)
+Search settings by name, from themes and font sizes to window proportions and keyboard shortcuts. Kanagawa Dragon pairs warm charcoal with muted terminal colors.
+
+<img src="docs/images/settings-preview.jpg" alt="Appearance settings with Kanagawa Dragon, SF Mono, text size, terminal padding, and translucent window bars" width="620" />
 
 ## Install on macOS
 
 [Download the latest release](https://github.com/berkinduz/term-cut-menubar-terminal/releases/latest/download/term-cut.dmg), open the disk image, and drag **term-cut** into **Applications**. Requires macOS 13 or later; supports Apple silicon and Intel.
+
+<img src="docs/images/install-preview.jpg" alt="DMG installer with term-cut on the left and the Applications folder on the right" width="560" />
 
 Releases are ad-hoc signed without Apple notarization. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Building from source is also supported.
 

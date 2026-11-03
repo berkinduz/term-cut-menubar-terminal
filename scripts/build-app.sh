@@ -40,7 +40,8 @@ ditto Sources/TermCut/Resources/ShellIntegration "$app_directory/Contents/Resour
 for bundle in "$resource_directory/"*.bundle; do
   if [ -d "$bundle" ]; then ditto "$bundle" "$app_directory/Contents/Resources/$(basename "$bundle")"; fi
 done
-swift scripts/create-icon.swift "$PWD/build/AppIcon.iconset"
+swiftc Sources/TermCut/BrandMark.swift scripts/create-icon.swift -o build/create-icon
+build/create-icon "$PWD/build/AppIcon.iconset"
 iconutil --convert icns build/AppIcon.iconset --output "$app_directory/Contents/Resources/AppIcon.icns"
 cp LICENSE THIRD_PARTY_NOTICES.md "$app_directory/Contents/Resources/"
 codesign --force --deep --sign - --timestamp=none "$app_directory"

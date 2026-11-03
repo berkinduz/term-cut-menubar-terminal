@@ -32,9 +32,8 @@ struct SettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .center, spacing: 12) {
-                Image(systemName: "terminal").font(.system(size: 23, weight: .light))
-                    .foregroundStyle(.teal).frame(width: 48, height: 48)
-                    .background(.teal.opacity(0.08), in: RoundedRectangle(cornerRadius: 13))
+                Image(nsImage: NSApplication.shared.applicationIconImage)
+                    .resizable().interpolation(.high).frame(width: 48, height: 48)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Make it yours.").font(.system(size: 21, weight: .semibold, design: .rounded))
                     Text("Small details. A better place to work.").font(.callout).foregroundStyle(.secondary)

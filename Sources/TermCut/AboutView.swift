@@ -5,11 +5,9 @@ struct AboutContent: View {
     private let repository = "https://github.com/berkinduz/term-cut-menubar-terminal"
     var body: some View {
         VStack(spacing: compact ? 12 : 18) {
-            Image(systemName: "terminal")
-                .font(.system(size: compact ? 27 : 36, weight: .light))
-                .foregroundStyle(.teal)
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable().interpolation(.high)
                 .frame(width: compact ? 64 : 86, height: compact ? 64 : 86)
-                .background(.teal.opacity(0.08), in: RoundedRectangle(cornerRadius: compact ? 18 : 23))
             VStack(spacing: 5) {
                 Text("term-cut").font(.system(size: compact ? 20 : 24, weight: .semibold, design: .rounded))
                 Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0")")
