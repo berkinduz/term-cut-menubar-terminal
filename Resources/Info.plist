@@ -3,19 +3,38 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key><string>en</string>
-    <key>CFBundleDisplayName</key><string>term-cut</string>
-    <key>CFBundleExecutable</key><string>TermCut</string>
-    <key>CFBundleIdentifier</key><string>com.berkinduz.term-cut</string>
+    <key>CFBundleDisplayName</key><string>Peeksh</string>
+    <key>CFBundleExecutable</key><string>Peeksh</string>
+    <key>CFBundleIdentifier</key><string>com.berkinduz.peeksh</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-    <key>CFBundleName</key><string>term-cut</string>
+    <key>CFBundleName</key><string>Peeksh</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.2.1</string>
-    <key>CFBundleVersion</key><string>7</string>
+    <key>CFBundleShortVersionString</key><string>0.3.3</string>
+    <key>CFBundleVersion</key><string>11</string>
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSPrincipalClass</key><string>NSApplication</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>com.berkinduz.peeksh.open</string>
+            <key>CFBundleURLSchemes</key><array><string>peeksh</string></array>
+            <key>CFBundleTypeRole</key><string>Editor</string>
+        </dict>
+    </array>
+    <key>NSServices</key>
+    <array>
+        <dict>
+            <key>NSMenuItem</key><dict><key>default</key><string>Open in Peeksh</string></dict>
+            <key>NSMessage</key><string>openInPeeksh</string>
+            <key>NSPortName</key><string>Peeksh</string>
+            <key>NSSendFileTypes</key><array><string>public.folder</string></array>
+            <key>NSRequiredContext</key>
+            <dict><key>NSApplicationIdentifier</key><string>com.apple.finder</string></dict>
+        </dict>
+    </array>
     <key>NSHumanReadableCopyright</key><string>Copyright © 2026 berkinduz. MIT License.</string>
 </dict>
 </plist>

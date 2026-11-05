@@ -1,0 +1,33 @@
+# Hooks report only command state, exit status and the working directory, never command text.
+builtin emulate -L zsh -o no_aliases
+
+_peeksh_preexec() {
+    builtin printf '\033]7777;start\007' > /dev/tty
+}
+
+_peeksh_precmd() {
+    builtin local result=$?
+    # Encode UTF-8 bytes rather than characters so URL delimiters, controls and
+    # non-ASCII names stay directory data. All prompt work uses zsh builtins.
+    builtin emulate -L zsh -o no_aliases -o no_multibyte
+    builtin local LC_ALL=C
+    builtin local encoded='' character escaped
+    builtin local -i index
+    for (( index = 1; index <= ${#PWD}; index++ )); do
+        character=${PWD[index]}
+        case "$character" in
+            [a-zA-Z0-9/._~-]) encoded+=$character ;;
+            *)
+                builtin printf -v escaped '%%%02X' "'$character"
+                encoded+=$escaped
+                ;;
+        esac
+    done
+    builtin printf '\033]7;file://localhost%s\007' "$encoded" > /dev/tty
+    builtin printf '\033]7777;done;%d\007' "$result" > /dev/tty
+    builtin return 0
+}
+
+builtin typeset -ag preexec_functions precmd_functions
+preexec_functions+=(_peeksh_preexec)
+precmd_functions+=(_peeksh_precmd)

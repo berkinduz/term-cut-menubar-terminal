@@ -1,8 +1,10 @@
 # Shell integration
 
-term-cut launches top-level zsh login sessions with an app-owned `ZDOTDIR`. The bundled `.zshenv` restores the previous directory, loads the user's `.zshenv`, and installs `preexec` / `precmd` hooks. The rest of zsh startup proceeds normally. User startup files are never written by the application.
+Peeksh launches top-level zsh login sessions with an app-owned `ZDOTDIR`. The bundled `.zshenv` restores the previous directory, loads the user's `.zshenv`, and installs `preexec` / `precmd` hooks. The rest of zsh startup proceeds normally. User startup files are never written by the application.
 
 The hooks send private `OSC 7777` reports through the PTY: `start` before a command and `done;<exit status>` before the next prompt. These reports contain no command text. SwiftTerm's registered handler updates the session's status without replacing its standard OSC handlers. Shell builtins, syntax errors, interrupted commands, and shell exits are covered.
+
+Before each prompt, the bundled zsh hook also reports the current local directory using `OSC 7`. UTF-8 bytes and URL delimiters are percent-encoded with zsh builtins, without spawning a helper process. Directory inheritance, saved profiles, duplicated tabs, and workspace restoration therefore follow normal `cd` changes in the supported top-level zsh shell. Other shells need their own OSC 7 support.
 
 - Green: the prompt is ready after a successful command.
 - Yellow: a foreground command is running.

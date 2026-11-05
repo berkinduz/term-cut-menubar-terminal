@@ -1,0 +1,54 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: peeksh [directory]
+       peeksh --profile NAME
+       peeksh --help
+
+Open a directory in Peeksh, or open a saved workspace profile.
+With no directory, use the current working directory.
+USAGE
+}
+
+kind=path
+value="${PWD}"
+case "${1:-}" in
+  --help|-h) usage; exit 0 ;;
+  --profile)
+    if [ "$#" -ne 2 ] || [ -z "$2" ]; then usage >&2; exit 2; fi
+    kind=profile
+    value="$2"
+    ;;
+  --)
+    shift
+    if [ "$#" -gt 1 ]; then usage >&2; exit 2; fi
+    value="${1:-$PWD}"
+    ;;
+  -*) usage >&2; exit 2 ;;
+  *)
+    if [ "$#" -gt 1 ]; then usage >&2; exit 2; fi
+    value="${1:-$PWD}"
+    ;;
+esac
+
+if [ "$kind" = path ]; then
+  if [ ! -d "$value" ]; then
+    printf 'peeksh: directory does not exist: %s\n' "$value" >&2
+    exit 1
+  fi
+  cd -- "$value"
+  value="$PWD"
+fi
+
+# Pass user input as argv, never as JavaScript or shell source.
+url="$(/usr/bin/osascript -l JavaScript -e '
+function run(argv) {
+    var encoded = encodeURIComponent(argv[1]).replace(/[!\u0027()*]/g, function (character) {
+        return "%" + character.charCodeAt(0).toString(16).toUpperCase();
+    });
+    return "peeksh://open?" + argv[0] + "=" + encoded;
+}
+' "$kind" "$value")"
+/usr/bin/open "$url"

@@ -39,5 +39,5 @@ with DSStore.open(str(destination), "w+") as layout:
         "showIconPreview": True,
         "showItemInfo": False,
     }
-    layout["term-cut.app"]["Iloc"] = (140, 130)
+    layout["Peeksh.app"]["Iloc"] = (140, 130)
     layout["Applications"]["Iloc"] = (420, 130)

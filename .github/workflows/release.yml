@@ -52,10 +52,13 @@ jobs:
       - name: Package
         if: steps.publish.outputs.required == 'true'
         run: ./scripts/package-dmg.sh
+      - name: Generate Homebrew cask
+        if: steps.publish.outputs.required == 'true'
+        run: ./scripts/generate-cask.sh build/Peeksh.dmg
       - name: Checksums
         if: steps.publish.outputs.required == 'true'
         working-directory: build
-        run: shasum -a 256 term-cut.dmg > SHA256SUMS
+        run: shasum -a 256 Peeksh.dmg > SHA256SUMS
       - name: Publish release
         if: steps.publish.outputs.required == 'true'
         env:
@@ -64,8 +67,8 @@ jobs:
           RELEASE_COMMIT: ${{ github.event.workflow_run.head_sha }}
         run: |
           gh release create "$RELEASE_TAG" \
-            build/term-cut.dmg build/SHA256SUMS \
+            build/Peeksh.dmg build/SHA256SUMS build/peeksh.rb \
             --repo "$GITHUB_REPOSITORY" \
             --target "$RELEASE_COMMIT" \
-            --title "term-cut $RELEASE_TAG" \
+            --title "Peeksh $RELEASE_TAG" \
             --notes-file "docs/releases/$RELEASE_TAG.md"

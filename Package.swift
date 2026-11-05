@@ -2,20 +2,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "term-cut",
+    name: "Peeksh",
     platforms: [.macOS(.v13)],
-    products: [.executable(name: "TermCut", targets: ["TermCut"])],
+    products: [.executable(name: "Peeksh", targets: ["Peeksh"])],
     dependencies: [
         .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", exact: "1.20.0")
     ],
     targets: [
-        .target(name: "TermCutCore"),
+        .target(name: "PeekshCore"),
         .executableTarget(
-            name: "TermCut",
-            dependencies: ["TermCutCore", .product(name: "SwiftTerm", package: "SwiftTerm")],
+            name: "Peeksh",
+            dependencies: ["PeekshCore", .product(name: "SwiftTerm", package: "SwiftTerm")],
             resources: [.copy("Resources/ShellIntegration")]
         ),
-        .testTarget(name: "TermCutCoreTests", dependencies: ["TermCutCore"]),
-        .testTarget(name: "TermCutTests", dependencies: ["TermCut"])
+        .testTarget(name: "PeekshCoreTests", dependencies: ["PeekshCore"]),
+        .testTarget(name: "PeekshTests", dependencies: ["Peeksh"])
     ]
 )

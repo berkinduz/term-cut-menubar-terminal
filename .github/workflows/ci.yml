@@ -29,6 +29,6 @@ jobs:
         run: ./scripts/package-dmg.sh
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: term-cut-macos
+          name: peeksh-macos
           path: |
-            build/term-cut.dmg
+            build/Peeksh.dmg

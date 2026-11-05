@@ -1,6 +1,6 @@
 # Third-party notices
 
-term-cut includes [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm), distributed under the following license:
+Peeksh includes [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm), distributed under the following license:
 
 ```
 Copyright (c) 2019-2026 Miguel de Icaza (https://github.com/migueldeicaza)
