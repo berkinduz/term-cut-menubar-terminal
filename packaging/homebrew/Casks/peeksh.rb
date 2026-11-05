@@ -1,12 +1,13 @@
 cask "peeksh" do
-  version "0.3.3"
-  sha256 "5947a7e324a0e481aa5067e37a24c107e9edcf3a2485b768db158588f1da995a"
+  version "0.3.4"
+  sha256 "2dc3f46d68ee1a1ad8683223286a44179a1451040403e4d4da3a6c6048588f54"
 
   url "https://github.com/berkinduz/peeksh/releases/download/v#{version}/Peeksh.dmg"
   name "Peeksh"
   desc "Terminal in your menu bar"
   homepage "https://github.com/berkinduz/peeksh"
 
+  auto_updates true
   depends_on macos: ">= :ventura"
 
   app "Peeksh.app"

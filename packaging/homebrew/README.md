@@ -2,7 +2,7 @@
 
 Peeksh uses the shared [berkinduz/tap](https://github.com/berkinduz/tap), alongside Slip. Its cask is `Casks/peeksh.rb`, and release binaries stay in [berkinduz/peeksh](https://github.com/berkinduz/peeksh).
 
-The cask installs `Peeksh.app` and links its bundled `peeksh` command. It supports macOS 13+ on Apple silicon and Intel. The checked-in cask matches the published 0.3.3 DMG.
+The cask installs `Peeksh.app` and links its bundled `peeksh` command. It supports macOS 13+ on Apple silicon and Intel. The checked-in cask matches the published 0.3.4 DMG.
 
 ## Publish or update
 
