@@ -20,9 +20,8 @@ Click the menu bar icon to open your terminal. Run a command, hide the window, a
 
 ## Install
 
-Homebrew and DMG downloads will be available after the first Peeksh release. For now, [build from source](docs/RELEASING.md#prepare-locally).
-
 ```sh
+brew tap berkinduz/tap https://github.com/berkinduz/tap
 brew install --cask berkinduz/tap/peeksh
 ```
 

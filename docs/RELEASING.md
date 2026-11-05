@@ -42,23 +42,24 @@ After signing the app, package the DMG again. After notarization/stapling, regen
 
 ## App release and Homebrew tap are separate
 
-The release workflow builds/tests the selected main commit and, when later pushed with the appropriate authorization, publishes:
+The release workflow builds/tests the selected main commit and publishes:
 
 - `Peeksh.dmg`
 - `SHA256SUMS`
 - `peeksh.rb`
 
-It uses `docs/releases/v<version>.md` as its release notes and titles the release Peeksh. Local preparation does not publish anything. The shared tap already exists; the first Peeksh release and its cask publication remain pending.
+It uses `docs/releases/v<version>.md` as its release notes and titles the release Peeksh. Local preparation does not publish anything.
 
-The existing [berkinduz/homebrew-tap](https://github.com/berkinduz/homebrew-tap) hosts one `Casks/<app>.rb` per application. Add `Casks/peeksh.rb` alongside Slip and add Peeksh to the tap README's application table. Preserve other casks and rename records.
+The shared [berkinduz/tap](https://github.com/berkinduz/tap) hosts one `Casks/<app>.rb` per application. Keep `Casks/peeksh.rb` alongside Slip and preserve the other applications' casks.
 
-Use `peeksh.rb` from the published release and verify its matching `Peeksh.dmg` against that release's `SHA256SUMS`. The [prepared local cask](../packaging/homebrew/Casks/peeksh.rb) describes the local DMG; a CI rebuild can produce different bytes. Follow the tap's [contribution guide](https://github.com/berkinduz/homebrew-tap/blob/main/CONTRIBUTING.md) for Ruby syntax, Homebrew audit/style and installation checks.
+Use `peeksh.rb` from the published release and verify its matching `Peeksh.dmg` against that release's `SHA256SUMS`. Update the [checked-in cask](../packaging/homebrew/Casks/peeksh.rb) from that same release. A CI rebuild can produce different bytes from a local package; validate the final cask with Ruby syntax and Homebrew audit/style and installation checks.
 
 The app workflow publishes its own release assets; the tap is updated separately. See the [Homebrew guide](../packaging/homebrew/README.md) for the release-to-tap steps.
 
 After the release and cask are published, users can run:
 
 ```sh
+brew tap berkinduz/tap https://github.com/berkinduz/tap
 brew install --cask berkinduz/tap/peeksh
 brew upgrade --cask berkinduz/tap/peeksh
 ```

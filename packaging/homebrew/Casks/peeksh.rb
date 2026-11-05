@@ -1,6 +1,6 @@
 cask "peeksh" do
   version "0.3.3"
-  sha256 "7b9788122c2d851baaf28e6f92587731dcde256a3e4f94c2638b7e290dbfd13a"
+  sha256 "5947a7e324a0e481aa5067e37a24c107e9edcf3a2485b768db158588f1da995a"
 
   url "https://github.com/berkinduz/peeksh/releases/download/v#{version}/Peeksh.dmg"
   name "Peeksh"
