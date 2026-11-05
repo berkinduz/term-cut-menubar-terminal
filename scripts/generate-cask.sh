@@ -41,6 +41,7 @@ cask "peeksh" do
   desc "Terminal in your menu bar"
   homepage "https://github.com/berkinduz/peeksh"
 
+  auto_updates true
   depends_on macos: ">= :ventura"
 
   app "Peeksh.app"

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AboutContent: View {
     var compact = false
+    var updater: AppUpdater?
     private let repository = "https://github.com/berkinduz/peeksh"
     var body: some View {
         VStack(spacing: compact ? 12 : 18) {
@@ -14,6 +15,7 @@ struct AboutContent: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             Text("Your terminal. A click away.").foregroundStyle(.secondary)
+            if let updater { UpdateControls(updater: updater) }
             VStack(spacing: 12) {
                 Link(destination: URL(string: "https://github.com/berkinduz")!) {
                     Label("Made by berkinduz", systemImage: "person.crop.circle")
@@ -35,6 +37,30 @@ struct AboutContent: View {
             }
         }
         .tint(.teal)
+    }
+}
+
+private struct UpdateControls: View {
+    @ObservedObject var updater: AppUpdater
+
+    var body: some View {
+        VStack(spacing: 6) {
+            if let release = updater.availableRelease {
+                Text("Version \(release.version) is available").font(.caption).foregroundStyle(.secondary)
+            }
+            HStack(spacing: 8) {
+                if updater.isBusy { ProgressView().controlSize(.small) }
+                Button(updater.buttonTitle) { Task { await updater.update() } }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(updater.isBusy)
+            }
+            if updater.status == .upToDate {
+                Text("You're up to date.").font(.caption).foregroundStyle(.secondary)
+            } else if case .failed(let message) = updater.status {
+                Text(message).font(.caption).foregroundStyle(.red)
+                    .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 }
 

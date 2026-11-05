@@ -18,22 +18,28 @@ case "${1:-}" in
 esac
 
 binary_paths=()
+installer_paths=()
 resource_directory=""
 for architecture in "${architectures[@]}"; do
   swift_build --configuration "$configuration" --product Peeksh --arch "$architecture"
+  swift_build --configuration "$configuration" --product PeekshUpdateInstaller --arch "$architecture"
   binary_directory="$(swift_build --configuration "$configuration" --show-bin-path --arch "$architecture")"
   binary_paths+=("$binary_directory/Peeksh")
+  installer_paths+=("$binary_directory/PeekshUpdateInstaller")
   if [ -z "$resource_directory" ]; then resource_directory="$binary_directory"; fi
 done
 app_directory="$PWD/build/Peeksh.app"
 mkdir -p build
 rm -rf "$app_directory"
-mkdir -p "$app_directory/Contents/MacOS" "$app_directory/Contents/Resources/bin"
+mkdir -p "$app_directory/Contents/MacOS" "$app_directory/Contents/Resources/bin" "$app_directory/Contents/Helpers"
 if [ "${#binary_paths[@]}" -gt 1 ]; then
   lipo -create "${binary_paths[@]}" -output "$app_directory/Contents/MacOS/Peeksh"
   chmod 755 "$app_directory/Contents/MacOS/Peeksh"
+  lipo -create "${installer_paths[@]}" -output "$app_directory/Contents/Helpers/PeekshUpdateInstaller"
+  chmod 755 "$app_directory/Contents/Helpers/PeekshUpdateInstaller"
 else
   install -m 755 "${binary_paths[0]}" "$app_directory/Contents/MacOS/Peeksh"
+  install -m 755 "${installer_paths[0]}" "$app_directory/Contents/Helpers/PeekshUpdateInstaller"
 fi
 cp Resources/Info.plist "$app_directory/Contents/Info.plist"
 install -m 755 scripts/peeksh "$app_directory/Contents/Resources/bin/peeksh"

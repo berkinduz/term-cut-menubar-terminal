@@ -25,7 +25,7 @@ The repository is named `tap`, so supply its URL explicitly when adding it:
 ```sh
 brew tap berkinduz/tap https://github.com/berkinduz/tap
 brew install --cask berkinduz/tap/peeksh
-brew upgrade --cask berkinduz/tap/peeksh
+brew upgrade --cask --greedy berkinduz/tap/peeksh
 ```
 
-Homebrew also makes `peeksh .` available in your shell. Local preparation does not publish or install anything.
+Homebrew also makes `peeksh .` available in your shell. Peeksh includes its own updater; `--greedy` explicitly includes it in a Homebrew upgrade. Local preparation does not publish or install anything.

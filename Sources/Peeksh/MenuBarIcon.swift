@@ -10,3 +10,7 @@ enum MenuBarIcon {
         return image
     }
 }
+
+final class MenuBarUpdateBadge: NSImageView {
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+}

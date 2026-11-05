@@ -2,7 +2,7 @@
 
 ## Prepare locally
 
-1. Update `CFBundleShortVersionString` and `CFBundleVersion` in [Info.plist](../Resources/Info.plist), `TERM_PROGRAM_VERSION` in [ShellConfiguration.swift](../Sources/PeekshCore/ShellConfiguration.swift), and add `docs/releases/v<version>.md`. This checkout prepares 0.3.3/build11.
+1. Update `CFBundleShortVersionString` and `CFBundleVersion` in [Info.plist](../Resources/Info.plist), `TERM_PROGRAM_VERSION` in [ShellConfiguration.swift](../Sources/PeekshCore/ShellConfiguration.swift), and add `docs/releases/v<version>.md`. This checkout prepares 0.3.4/build12.
 2. Run `swift test`, then `./scripts/build-app.sh --universal` to create `build/Peeksh.app` for Apple silicon and Intel.
 3. Run `./scripts/package-dmg.sh` and `hdiutil verify build/Peeksh.dmg`.
 4. Mount the DMG read-only and run `codesign --verify --deep --strict` against its actual Peeksh.app. Confirm bundle version, both architectures, executable peeksh launcher, shell integration resources, and Finder app/Applications layout. Container verification alone does not verify the app signature.
@@ -61,5 +61,5 @@ After the release and cask are published, users can run:
 ```sh
 brew tap berkinduz/tap https://github.com/berkinduz/tap
 brew install --cask berkinduz/tap/peeksh
-brew upgrade --cask berkinduz/tap/peeksh
+brew upgrade --cask --greedy berkinduz/tap/peeksh
 ```

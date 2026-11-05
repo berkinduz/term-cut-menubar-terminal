@@ -3,10 +3,12 @@ import Combine
 import SwiftUI
 import PeekshCore
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenuDelegate {
     let settings = SettingsStore()
     let hotKeys = HotKeyManager()
     let notifications = CommandCompletionNotifier()
+    let updater = AppUpdater()
     private var workspace: TerminalWorkspace!
     private var terminalPanel: TerminalPanelController!
     private var statusItem: NSStatusItem!
@@ -16,6 +18,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     private var activityObserver: AnyCancellable?
     private var profileMenu: NSMenu?
     private var pendingOpenRequests: [TerminalOpenRequest] = []
+    private var pendingUpdate: PreparedAppUpdate?
+    private let updateBadge = MenuBarUpdateBadge(frame: .zero)
+    private var updateObserver: AnyCancellable?
+    private var updateMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let dataDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -69,6 +75,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
                 activityDot.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -1),
                 activityDot.bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 2)
             ])
+            updateBadge.image = NSImage(systemSymbolName: "arrow.down.circle.fill", accessibilityDescription: nil)
+            updateBadge.contentTintColor = .systemBlue
+            updateBadge.translatesAutoresizingMaskIntoConstraints = false
+            updateBadge.isHidden = true
+            updateBadge.setAccessibilityElement(false)
+            button.addSubview(updateBadge)
+            NSLayoutConstraint.activate([
+                updateBadge.widthAnchor.constraint(equalToConstant: 9),
+                updateBadge.heightAnchor.constraint(equalToConstant: 9),
+                updateBadge.leadingAnchor.constraint(equalTo: button.leadingAnchor),
+                updateBadge.topAnchor.constraint(equalTo: button.topAnchor, constant: 1)
+            ])
         }
         activityObserver = workspace.objectWillChange.sink { [weak self] in
             DispatchQueue.main.async { [weak self] in
@@ -76,6 +94,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             }
         }
         updateActivityIndicator()
+        updateObserver = updater.objectWillChange.sink { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.updateBadge.isHidden = self.updater.availableRelease == nil
+                self.updateMenuItem?.title = self.updater.menuTitle
+                self.updateActivityIndicator()
+            }
+        }
+        updater.onReadyToInstall = { [weak self] update in
+            guard let self else { throw AppUpdateError.installerMissing }
+            self.pendingUpdate = update
+            NSApp.terminate(nil)
+        }
         terminalPanel.statusAnchor = { [weak self] in
             guard let button = self?.statusItem.button, let window = button.window else { return nil }
             return window.convertToScreen(button.convert(button.bounds, to: nil))
@@ -89,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         }
         hotKeys.update(settings.value)
         buildMainMenu()
+        updater.startAutomaticChecks()
         notifications.refreshAuthorization()
         var launch = TerminalLaunchOptions()
         do {
@@ -112,7 +144,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     func applicationWillTerminate(_ notification: Notification) { terminalPanel?.shutdown(); workspace?.stopAll() }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let workspace else { return .terminateNow }
-        return workspace.confirmTermination(of: workspace.sessions) ? .terminateNow : .terminateCancel
+        guard workspace.confirmTermination(of: workspace.sessions) else {
+            if pendingUpdate != nil { updater.cancelInstallation(); pendingUpdate = nil }
+            return .terminateCancel
+        }
+        if let update = pendingUpdate {
+            do { try update.launchInstaller(parentPID: ProcessInfo.processInfo.processIdentifier) }
+            catch {
+                pendingUpdate = nil
+                updater.installationFailed(error)
+                return .terminateCancel
+            }
+        }
+        return .terminateNow
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
@@ -120,8 +164,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
         let activity = workspace.activity
         activityDot.activity = activity
         let description = workspace.sessions.isEmpty ? "No sessions" : activity.description
-        statusItem.button?.toolTip = "Peeksh — \(description)\nClick to toggle, right-click for options"
-        statusItem.button?.setAccessibilityLabel("Peeksh — \(description)")
+        let update = updater.availableRelease.map { " — Update available: \($0.version)" } ?? ""
+        statusItem.button?.toolTip = "Peeksh — \(description)\(update)\nClick to toggle, right-click for options"
+        statusItem.button?.setAccessibilityLabel("Peeksh — \(description)\(update)")
     }
 
     @objc private func statusItemClicked() {
@@ -131,6 +176,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
             menu.addItem(.separator())
             add("Settings…", action: #selector(showSettings), key: ",", to: menu)
             add("About Peeksh", action: #selector(showAbout), to: menu)
+            add(updater.menuTitle, action: #selector(updatePeeksh), to: menu)
             menu.addItem(.separator())
             add("Quit Peeksh", action: #selector(quit), key: "q", to: menu)
             statusItem.menu = menu
@@ -186,17 +232,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     @objc func showAbout() {
         terminalPanel?.hide()
         if aboutWindow == nil {
-            aboutWindow = UtilityWindowController(title: "About Peeksh", size: NSSize(width: 390, height: 440),
-                                                     content: AboutContent().frame(maxWidth: .infinity, maxHeight: .infinity).padding(24),
+            aboutWindow = UtilityWindowController(title: "About Peeksh", size: NSSize(width: 390, height: 540),
+                                                     content: AboutContent(updater: updater).frame(maxWidth: .infinity, maxHeight: .infinity).padding(24),
                                                      autosave: "peeksh-about")
         }
         aboutWindow?.present()
+    }
+
+    @objc private func updatePeeksh() {
+        showAbout()
+        Task { await updater.update() }
     }
 
     private func buildMainMenu() {
         let main = NSMenu()
         let app = NSMenu(title: "Peeksh")
         add("About Peeksh", action: #selector(showAbout), to: app)
+        updateMenuItem = add(updater.menuTitle, action: #selector(updatePeeksh), to: app)
         add("Settings…", action: #selector(showSettings), key: ",", to: app)
         let services = NSMenu(title: "Services")
         let servicesItem = NSMenuItem(title: "Services", action: nil, keyEquivalent: "")
@@ -277,6 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, 
     }
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(updatePeeksh) { return !updater.isBusy }
         let terminalActions: [Selector] = [#selector(splitRight), #selector(splitDown), #selector(closeTab),
             #selector(nextPane), #selector(previousPane), #selector(nextTab), #selector(previousTab),
             #selector(duplicateTab), #selector(moveTabLeft), #selector(moveTabRight),
